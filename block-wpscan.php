@@ -4,8 +4,8 @@ Plugin Name: block-Wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, proxy, tor and foreign ip.
 Author: rluisr
-Version: 1.0.0
-Author URI: http://luispc.com/
+Version: 0.0.1
+Author URI: https://luispc.com/
 */
 
 add_action('admin_menu', 'admin_block_wpscan');
@@ -51,17 +51,17 @@ function admin_block_wpscan()
 function menu_block_wpscan()
 {
     if (isset($_POST['msg']) && check_admin_referer('check_referer')) {
-        update_option('msg', $_POST['msg']);
+        update_option('msg', htmlspecialchars($_POST['msg']));
         update_option('proxy', $_POST['proxy']);
         update_option('tor', $_POST['tor']);
-        update_option('cron', $_POST['cron']);
-        wp_schedule_event(time(), get_option('cron'), 'toGetTorIpList');
+        update_option('cron1', $_POST['cron']);
+        wp_schedule_event(time(), get_option('cron1'), 'toGetTorIpList');
     }
 
     $msg = get_option('msg');
     $proxy = get_option('proxy');
     $tor = get_option('tor');
-    $cron = get_option('cron');
+    $cron = get_option('cron1');
     $wp_n = wp_nonce_field('check_referer');
 
     echo <<<EOF
@@ -124,13 +124,8 @@ EOF;
     } else {
         echo "<option value=\"daily\">daily</option>";
     }
-    if (!isset($cron)) {
-        echo "<option value=\"hourly\">hourly</option>";
-        echo "<option value=\"twicedaily\" selected>twicedaily</option>";
-        echo "<option value=\"daily\">daily</option>";
-    }
     echo <<<EOF
-    </select >
+    </select>
     <br>
     <br>
     <br>
@@ -230,6 +225,6 @@ function block_wpscan()
 
     if ($result === 0) {
         header("HTTP/1.0 406 Not Acceptable");
-        die(get_option('msg'));
+        die(htmlspecialchars(get_option('msg')));
     }
 }
