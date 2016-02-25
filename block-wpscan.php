@@ -10,7 +10,7 @@ Author URI: https://luispc.com/
 
 add_action('admin_menu', 'admin_block_wpscan');
 add_action('init', 'block_wpscan');
-
+add_action('block-wpscan_cron', 'toGetTorIpList');
 
 function toGetTorIpList()
 {
@@ -30,13 +30,6 @@ function toGetTorIpList()
     file_put_contents(WP_PLUGIN_DIR . '/block-wpscan/toriplist', $list);
 }
 
-add_action('block-wpscan_cron', 'toGetTorIpList');
-
-if (!wp_next_scheduled('block-wpscan_cron')) {
-    @wp_schedule_event(time(), get_option('cron'), 'toGetTorIpList');
-}
-
-
 function admin_block_wpscan()
 {
     add_menu_page(
@@ -55,7 +48,9 @@ function menu_block_wpscan()
         update_option('proxy', $_POST['proxy']);
         update_option('tor', $_POST['tor']);
         update_option('cron1', $_POST['cron']);
-        wp_schedule_event(time(), get_option('cron1'), 'toGetTorIpList');
+        if (!wp_next_scheduled('block-wpscan_cron')) {
+            wp_schedule_event(time(), get_option('cron1'), 'toGetTorIpList');
+        }
     }
 
     $msg = get_option('msg');
