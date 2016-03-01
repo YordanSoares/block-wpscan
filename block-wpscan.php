@@ -12,25 +12,6 @@ add_action('admin_menu', 'admin_block_wpscan');
 add_action('init', 'block_wpscan');
 add_action('block-wpscan_cron', 'toGetTorIpList');
 
-
-function toGetTorIpList()
-{
-    $fgt = strip_tags(file_get_contents("https://www.dan.me.uk/tornodes"));
-    $pattern = array("/\|(.*)/", "/[a-zA-Z]/");
-    $ip = preg_replace($pattern, "", $fgt);
-    if (file_put_contents(WP_PLUGIN_DIR . '/block-wpscan/toriplist', $ip) === false) {
-        echo "Cannot create \"toriplist\". Please check your permission.";
-    }
-
-    $ip = file(WP_PLUGIN_DIR . '/block-wpscan/toriplist');
-    foreach ($ip as $row) {
-        if (preg_match("/^\\d/", $row)) {
-            $list[] = $row;
-        }
-    }
-    file_put_contents(WP_PLUGIN_DIR . '/block-wpscan/toriplist', $list);
-}
-
 function admin_block_wpscan()
 {
     add_menu_page(
@@ -39,26 +20,21 @@ function admin_block_wpscan()
         'administrator',
         'block-wpscan',
         'menu_block_wpscan',
-        plugins_url( 'assets/images/icon.png', __FILE__ )
+        plugins_url('assets/images/icon.png', __FILE__)
     );
 }
 
 function menu_block_wpscan()
 {
-    if (isset($_POST['msg']) && check_admin_referer('check_referer')) {
-        update_option('msg', htmlspecialchars($_POST['msg']));
-        update_option('proxy', $_POST['proxy']);
-        update_option('tor', $_POST['tor']);
-        update_option('cron1', $_POST['cron']);
-        if (!wp_next_scheduled('block-wpscan_cron')) {
-            wp_schedule_event(time(), get_option('cron1'), 'toGetTorIpList');
-        }
+    if (isset($_POST['msg']) && $_POST['proxy'] && $_POST['tor'] && check_admin_referer('check_referer')) {
+        update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('tor', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
     }
 
     $msg = get_option('msg');
     $proxy = get_option('proxy');
     $tor = get_option('tor');
-    $cron = get_option('cron1');
     $wp_n = wp_nonce_field('check_referer');
 
     echo <<<EOF
@@ -103,27 +79,6 @@ EOF;
     }
     echo <<<EOF
     <br>
-    <h3>Update frenquency Tor IP List.</h3>
-    <select name="cron">
-EOF;
-    if ($cron == "hourly") {
-        echo "<option value=\"hourly\" selected>hourly</option>";
-    } else {
-        echo "<option value=\"hourly\">hourly</option>";
-    }
-    if ($cron == "twicedaily") {
-        echo "<option value=\"twicedaily\" selected>twicedaily</option>";
-    } else {
-        echo "<option value=\"twicedaily\">twicedaily</option>";
-    }
-    if ($cron == "daily") {
-        echo "<option value=\"daily\" selected>daily</option>";
-    } else {
-        echo "<option value=\"daily\">daily</option>";
-    }
-    echo <<<EOF
-    </select>
-    <br>
     <br>
     <br>
     <input type="submit" value="Save all">
@@ -152,35 +107,48 @@ function block_wpscan()
     /**
      * ブラウザの優先言語で判別。
      */
-    $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
-    $languages = array_reverse($languages);
+    if (filter_input(INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE', FILTER_SANITIZE_SPECIAL_CHARS)) {
+        $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $languages = array_reverse($languages);
 
-    foreach ($languages as $language) {
-        if (preg_match('/^ja/i', $language)) {
-            $browser_result = 1;
-        } elseif (preg_match('/^en/i', $language)) {
-            $browser_result = 1;
-        } else {
-            $browser_result = 0;
+        foreach ($languages as $language) {
+            if (preg_match('/^ja/i', $language)) {
+                $browser_result = 1;
+            } elseif (preg_match('/^en/i', $language)) {
+                $browser_result = 1;
+            } else {
+                $browser_result = 0;
+            }
         }
+
+    } else {
+        $browser_result = 0;
     }
     /**
      * Googlebot 判別
      */
-    if (strpos($_SERVER['HTTP_USER_AGENT'], "Google") === false) {
-        $bot_result = 0;
+    if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
+        if (strpos($_SERVER['HTTP_USER_AGENT'], "Google") === false) {
+            $bot_result = 0;
+        } else {
+            $bot_result = 1;
+        }
     } else {
         $bot_result = 1;
     }
     /**
      * ユーザーエージェントで判別
      */
-    $ua = $_SERVER['HTTP_USER_AGENT'];
-    if (strpos($ua, "Mozilla") === false) {
-        $ua_result = 0;
+    if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
+        if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) {
+            $ua_result = 0;
+        } else {
+            $ua_result = 1;
+        }
     } else {
-        $ua_result = 1;
+        $ua_result = 0;
     }
+
     /**
      * Header - Proxy
      */
@@ -188,24 +156,30 @@ function block_wpscan()
         $proxy_result1 = isset($_SERVER['HTTP_VIA']) ? 0 : 1;
         $proxy_result2 = isset($_SERVER['HTTP_CLIENT_IP']) ? 0 : 1;
     }
-
     /**
      * IP - Tor
      */
     if (get_option('tor') == "ON") {
-        $tor_ip = $_SERVER['REMOTE_ADDR'];
-        $tor_hostname = gethostbyaddr($tor_ip);
-        $tor_list = file_get_contents(WP_PLUGIN_DIR . '/block-wpscan/toriplist');
+        $url = 'https://c.xzy.pw/judgementAPI-for-Tor/api.php';
 
-        //echo $tor_ip . "<br>";
-        //echo $tor_hostname . "<br>";
-        //echo gettype($tor_ip);
-
-        if (strpos($tor_list, $tor_ip) !== false || strpos($tor_hostname, "tor") !== false || preg_match("/[a-zA-Z]/", $tor_hostname) === 0) {
-            $tor_result = 0;
-        } else {
-            $tor_result = 1;
+        if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP)) {
+            $ip = $_SERVER['REMOTE_ADDR'];
         }
+
+        $data = array(
+            "ip" => $ip
+        );
+
+        $options = array(
+            'http' => array(
+                'method' => 'POST',
+                'content' => http_build_query($data),
+            ),
+        );
+        $context = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        $result = json_decode($result);
+        $tor_result = $result->result;
     }
 
     if ($bot_result === 0 && $browser_result === 0) {
@@ -218,10 +192,8 @@ function block_wpscan()
         $result = 0;
     }
 
-    //echo "${browser_result}\r\n${ua_result}\r\n${proxy_result1}\r\n${proxy_result2}\r\n${tor_result}\r\n";
-
     if ($result === 0) {
         header("HTTP/1.0 406 Not Acceptable");
-        die(htmlspecialchars(get_option('msg')));
+        die(esc_html(get_option('msg')));
     }
 }
