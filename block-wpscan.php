@@ -4,7 +4,7 @@ Plugin Name: block-Wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, proxy, tor and foreign ip.
 Author: rluisr
-Version: 0.0.1
+Version: 0.0.2
 Author URI: https://luispc.com/
 */
 
@@ -30,16 +30,26 @@ function menu_block_wpscan()
         update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('tor', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('ip', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'ip', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
     }
 
     $msg = get_option('msg');
     $proxy = get_option('proxy');
     $tor = get_option('tor');
+    $ip = get_option('ip');
     $wp_n = wp_nonce_field('check_referer');
+
+    //IPの記述が間違ってたらエラー表示させよう
+    if(filter_var($ip, FILTER_VALIDATE_IP) === false){
+        echo "<p>Please check IP address format</p>";
+        $ip = null;
+    }
 
     echo <<<EOF
 <div>
     <h1>Setting | block-wpscan</h1>
+    <p>This plugin accepts access from Google(Ads, Crawler).</p>
+    <p>
     <p>----------------------------------------------------------------------------------------------</p>
     <form action="" method="post">
     ${wp_n}
@@ -67,17 +77,14 @@ EOF;
     <h2>Block Tor ON / OFF</h2>
     <p>If you check ON, It takes a bit of a while load time. Please test.</p>
 EOF;
-    if ($tor == "ON") {
-        echo "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON";
-    } else {
-        echo "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
-    }
-    if ($tor == "OFF") {
-        echo "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF";
-    } else {
-        echo "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
-    }
+    echo $a = $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
+    echo $b = $tor =="OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
     echo <<<EOF
+    <br>
+    <br>
+    <br>
+    <h3>Exception IP</h3>
+    <input type="text" name="ip" value="${ip}">
     <br>
     <br>
     <br>
@@ -99,11 +106,20 @@ function block_wpscan()
     /**
      * wpscan は HTTP_ACCEPT_LANGUAGE がないから拒否
      * Proxy と Tor は ON / OFF で拒否するか決めよう
+     * 終わってない　→　Webクローラー系はIPで例外にしておこう　Googleを含む
      * 0 : reject
      * 1 : accept
      */
     $result = 1;
 
+    /**
+     * 例外のIP設定
+     * 複数はまだ対応してない
+     */
+    if(get_option('ip')){
+        echo "Hello~~~~";
+        get_option('ip') == filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP) ? define('result', 1) : define('result', 0);
+    }
     /**
      * ブラウザの優先言語で判別。
      */
@@ -127,14 +143,10 @@ function block_wpscan()
     /**
      * Googlebot 判別
      */
-    if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
-        if (strpos($_SERVER['HTTP_USER_AGENT'], "Google") === false) {
-            $bot_result = 0;
-        } else {
-            $bot_result = 1;
-        }
-    } else {
+    if (strpos(gethostbyaddr($_SERVER['REMOTE_ADDR']), "google.com")) {
         $bot_result = 1;
+    } else {
+        $bot_result = 0;
     }
     /**
      * ユーザーエージェントで判別
@@ -148,7 +160,6 @@ function block_wpscan()
     } else {
         $ua_result = 0;
     }
-
     /**
      * Header - Proxy
      */
@@ -192,7 +203,7 @@ function block_wpscan()
         $result = 0;
     }
 
-    if ($result === 0) {
+    if ($result === 0 && result === 0) {
         header("HTTP/1.0 406 Not Acceptable");
         die(esc_html(get_option('msg')));
     }
