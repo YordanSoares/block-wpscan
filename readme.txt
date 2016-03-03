@@ -9,14 +9,14 @@ License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Block wpscan, proxy and tor access.
+This plugin calls c.xyz.pw to detect if a user is on a TOR.
+https://c.xzy.pw/judgementAPI-for-Tor/index.html
 
 == Description ==
 
 wpscanからのアクセス、Proxy,Torからのアクセスを拒否します。
-TorのIPリストは自動的にアップデートされます。
 
 Block wpscan, proxy and tor access.
-ip list of tor is updated automatically by wordpress cron.
 
 == Installation ==
 
