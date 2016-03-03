@@ -40,7 +40,7 @@ function menu_block_wpscan()
     $wp_n = wp_nonce_field('check_referer');
 
     //IPの記述が間違ってたらエラー表示させよう
-    if(filter_var($ip, FILTER_VALIDATE_IP) === false){
+    if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
         echo "<p>Please check IP address format</p>";
         $ip = null;
     }
@@ -60,16 +60,8 @@ function menu_block_wpscan()
     <br>
     <h2>Block Proxy ON / OFF</h2>
 EOF;
-    if ($proxy == "ON") {
-        echo "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON";
-    } else {
-        echo "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
-    }
-    if ($proxy == "OFF") {
-        echo "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF";
-    } else {
-        echo "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
-    }
+    echo $a = $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
+    echo $b = $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
     echo <<<EOF
     <br>
     <br>
@@ -77,13 +69,15 @@ EOF;
     <h2>Block Tor ON / OFF</h2>
     <p>If you check ON, It takes a bit of a while load time. Please test.</p>
 EOF;
-    echo $a = $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
-    echo $b = $tor =="OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
+    echo $c = $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
+    echo $d = $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
     echo <<<EOF
     <br>
     <br>
     <br>
     <h3>Exception IP</h3>
+    <p>If you have many exception IPs,Please sprit with ","<br>
+    Example: 1.1.1.1,2.2.2.2,3.3.3.3</p>
     <input type="text" name="ip" value="${ip}">
     <br>
     <br>
@@ -92,9 +86,6 @@ EOF;
     <br>
     <br>
     <p>This plugin is developing.<p>
-    <p>Now this plugin discriminate User-agent, Request header, Browser language[※1], and others.</p>
-    <p>Dont worry. This plugin allow googlebots. (Image, News, adsense and others)</p>
-    <p>※1 : only Eng or Jp[a] see - https://www.w3.org/International/questions/qa-lang-priorities.en.php</p>
     <p>----------------------------------------------------------------------------------------------</p >
     <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p>
 </div>
@@ -116,9 +107,17 @@ function block_wpscan()
      * 例外のIP設定
      * 複数はまだ対応してない
      */
-    if(get_option('ip')){
-        echo "Hello~~~~";
-        get_option('ip') == filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP) ? define('result', 1) : define('result', 0);
+    if (get_option('ip')) {
+        $exception_ip = explode(",", get_option('ip'));
+        print_r($exception_ip);
+        foreach ($exception_ip as $row) {
+            if ($row == $_SERVER['REMOTE_ADDR']) {
+                $exception_result = 1;
+                break;
+            } else {
+                $exception_result = 0;
+            }
+        }
     }
     /**
      * ブラウザの優先言語で判別。
@@ -143,11 +142,7 @@ function block_wpscan()
     /**
      * Googlebot 判別
      */
-    if (strpos(gethostbyaddr($_SERVER['REMOTE_ADDR']), "google.com")) {
-        $bot_result = 1;
-    } else {
-        $bot_result = 0;
-    }
+    $bot_result = strpos(gethostbyaddr($_SERVER['REMOTE_ADDR']), "google.com") === false ? $bot_result = 0 : $bot_result = 1;
     /**
      * ユーザーエージェントで判別
      */
@@ -188,22 +183,21 @@ function block_wpscan()
             ),
         );
         $context = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
-        $result = json_decode($result);
-        $tor_result = $result->result;
+        $result = json_decode(file_get_contents($url, false, $context));
+        $tor_result = (int)$result->result;
     }
 
-    if ($bot_result === 0 && $browser_result === 0) {
+    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) {
         $result = 0;
-    } else {
+    }
+
+    if ($bot_result === 1 || $exception_result === 1) {
         $result = 1;
     }
 
-    if ($ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || @$tor_result === 0) {
-        $result = 0;
-    }
+    //echo "HOST: $ip\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA: $ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result";
 
-    if ($result === 0 && result === 0) {
+    if ($result === 0) {
         header("HTTP/1.0 406 Not Acceptable");
         die(esc_html(get_option('msg')));
     }
