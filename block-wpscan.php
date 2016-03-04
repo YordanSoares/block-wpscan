@@ -20,7 +20,7 @@ function admin_block_wpscan()
         'administrator',
         'block-wpscan',
         'menu_block_wpscan',
-        plugins_url('assets/images/icon.png', __FILE__)
+        plugins_url('images/icon.png', __FILE__)
     );
 }
 
