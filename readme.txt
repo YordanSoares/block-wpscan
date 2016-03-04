@@ -4,16 +4,13 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block
 Requires at least: 4.0.0
 Tested up to: 4.4.2
-Stable tag: 0.0.3
+Stable tag: 0.0.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Block wpscan, proxy and tor access.
-wpscanのテスト、ProxyやTorからのアクセスをブロックします。
 
 == Description ==
-
-wpscanからのアクセス、Proxy,Torからのアクセスを拒否します。
 
 Block wpscan, proxy and tor access.
 This plugin calls c.xyz.pw to detect if a user is on a TOR.
@@ -32,6 +29,10 @@ https://c.xzy.pw/judgementAPI-for-Tor/index.html
 2. block tor
 
 == Changelog ==
+
+= 0.0.4 =
+* Fix Access from 127.0.0.1 is judged "BLOCK" by this plugin.
+* Fix Exception IP when it has plural IPs.
 
 = 0.0.3 =
 * Fix if API Server is down, it can normal operation.
