@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: block-Wpscan
+Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, proxy, tor and foreign ip.
 Author: rluisr
@@ -97,7 +97,6 @@ function block_wpscan()
     /**
      * wpscan は HTTP_ACCEPT_LANGUAGE がないから拒否
      * Proxy と Tor は ON / OFF で拒否するか決めよう
-     * 終わってない　→　Webクローラー系はIPで例外にしておこう　Googleを含む
      * 0 : reject
      * 1 : accept
      */
@@ -105,11 +104,9 @@ function block_wpscan()
 
     /**
      * 例外のIP設定
-     * 複数はまだ対応してない
      */
     if (get_option('ip')) {
         $exception_ip = explode(",", get_option('ip'));
-        print_r($exception_ip);
         foreach ($exception_ip as $row) {
             if ($row == $_SERVER['REMOTE_ADDR']) {
                 $exception_result = 1;
@@ -164,6 +161,7 @@ function block_wpscan()
     }
     /**
      * IP - Tor
+     * もしサーバーが落ちてたらどうする？
      */
     if (get_option('tor') == "ON") {
         $url = 'https://c.xzy.pw/judgementAPI-for-Tor/api.php';
@@ -183,8 +181,8 @@ function block_wpscan()
             ),
         );
         $context = stream_context_create($options);
-        $result = json_decode(file_get_contents($url, false, $context));
-        $tor_result = (int)$result->result;
+        $result = file_get_contents($url, false, $context);
+        $tor_result = json_decode($result) === null ? (int)$result->result : 0;
     }
 
     if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) {

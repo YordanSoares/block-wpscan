@@ -4,11 +4,12 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block
 Requires at least: 4.0.0
 Tested up to: 4.4.2
-Stable tag: 0.0.1
+Stable tag: 0.0.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Block wpscan, proxy and tor access.
+wpscanのテスト、ProxyやTorからのアクセスをブロックします。
 
 == Description ==
 
