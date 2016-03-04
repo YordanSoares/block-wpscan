@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block
 Requires at least: 4.0.0
 Tested up to: 4.4.2
-Stable tag: 0.0.2
+Stable tag: 0.0.3
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,9 @@ https://c.xzy.pw/judgementAPI-for-Tor/index.html
 2. block tor
 
 == Changelog ==
+
+= 0.0.3 =
+* Fix if API Server is down, it can normal operation.
 
 = 0.0.2 =
 * Add exception function with ip.

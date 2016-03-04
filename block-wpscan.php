@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, proxy, tor and foreign ip.
 Author: rluisr
-Version: 0.0.2
+Version: 0.0.3
 Author URI: https://luispc.com/
 */
 
@@ -182,7 +182,7 @@ function block_wpscan()
         );
         $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
-        $tor_result = json_decode($result) === null ? (int)$result->result : 0;
+        $tor_result = $result === false ? 1 : json_decode((int)$result->result);
     }
 
     if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) {
