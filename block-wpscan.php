@@ -182,7 +182,7 @@ function block_wpscan()
         );
         $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
-        $tor_result = $result === false ? 1 : json_decode((int)$result->result);
+        $tor_result = $result === false ? 1 : json_encode($result->result);
     }
 
     if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) {
