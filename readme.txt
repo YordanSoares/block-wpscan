@@ -30,6 +30,9 @@ https://c.xzy.pw/judgementAPI-for-Tor/index.html
 
 == Changelog ==
 
+= 0.0.5 =
+* Fix code.
+
 = 0.0.4 =
 * Fix Access from 127.0.0.1 is judged "BLOCK" by this plugin.
 * Fix Exception IP when it has plural IPs.
