@@ -8,9 +8,40 @@ Version: 0.0.5
 Author URI: https://luispc.com/
 */
 
+/* Copyright 2016 rluisr (contact: @lu_iskun)
+
+    Licence is GPLv2 (http://www.gnu.org/licenses/gpl-2.0.html)
+
+    This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all unauthorized access.
+    Tor is judged by API Server. If Tor's node isn't registration of API Server's node list, It can't block Tor access.
+    About 80% can block.
+
+    * Exception IPs.
+    * Proxy, Tor block ON / OFF.
+    * Edit message.
+
+    You should add server's global ip for other plugins. ex)Broken Link Checker.
+    Googlebot can access own server.
+
+    If you have any problems or requests, Please contact me with github or twitter.
+    Twitter : https://twitter.com/lu_iskun
+    Github  : https://github.com/rluisr/block-wpscan
+*/
+
+/* Block direct access */
+if (!defined('ABSPATH')) {
+    die('Direct acces not allowed!');
+}
+
 add_action('admin_menu', 'admin_block_wpscan');
 add_action('init', 'block_wpscan');
 add_action('block-wpscan_cron', 'toGetTorIpList');
+
+/* Register CSS and JS */
+function register_frontend()
+{
+    wp_register_style('bw_css', WP_PLUGIN_DIR.'/block-wpscan/assets/style.css', array(), null, all);
+}
 
 function admin_block_wpscan()
 {
@@ -20,12 +51,24 @@ function admin_block_wpscan()
         'administrator',
         'block-wpscan',
         'menu_block_wpscan',
-        plugins_url('images/icon.png', __FILE__)
+        plugins_url('assets/images/icon.png', __FILE__)
     );
 }
 
 function menu_block_wpscan()
 {
+    echo <<<JSP
+$(function() {
+    $('.tab li').click(function() {
+        var index = $('.tab li').index(this);
+        $('.content li').css('display','none');
+        $('.content li').eq(index).css('display','block');
+        $('.tab li').removeClass('select');
+        $(this).addClass('select')
+    });
+});
+JSP;
+
     if (isset($_POST['msg']) && $_POST['proxy'] && $_POST['tor'] && check_admin_referer('check_referer')) {
         update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
@@ -39,12 +82,16 @@ function menu_block_wpscan()
     $ip = get_option('ip');
     $wp_n = wp_nonce_field('check_referer');
 
-    echo <<<EOF
-<div>
-    <h1>Setting | block-wpscan</h1>
-    <p>This plugin accepts access from Google(Ads, Crawler).</p>
-    <p>
-    <p>----------------------------------------------------------------------------------------------</p>
+    echo <<<HTML
+    <h1>block-wpscan</h1>
+
+    <ul class="tab">
+    <li class="select">Setting</li>
+    <li>Log</li>
+    </ul>
+
+    <ul class="content">
+<li>
     <form action="" method="post">
     ${wp_n}
     <h2>When block the access, What message do you want to display?</h2>
@@ -53,19 +100,19 @@ function menu_block_wpscan()
     <br>
     <br>
     <h2>Block Proxy ON / OFF</h2>
-EOF;
+HTML;
     echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
     echo $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
-    echo <<<EOF
+    echo <<<HTML
     <br>
     <br>
     <br>
     <h2>Block Tor ON / OFF</h2>
     <p>If you check ON, It takes a bit of a while load time. Please test.</p>
-EOF;
+HTML;
     echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
     echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
-    echo <<<EOF
+    echo <<<HTML
     <br>
     <br>
     <br>
@@ -83,8 +130,12 @@ EOF;
     <p>This plugin is developing.<p>
     <p>----------------------------------------------------------------------------------------------</p >
     <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p>
-</div>
-EOF;
+<li>
+
+<li class="hide">
+aaaa
+</li>
+HTML;
 }
 
 function block_wpscan()
@@ -123,7 +174,7 @@ function block_wpscan()
      * 自分自身のアクセスは例外（忘れてたンゴｗ）
      * サーバー自身のAPIを取得するのもAPI依存だからエラー処理
      */
-    $exception_result = $_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR']  ? 1 : 0;
+    $exception_result = $_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR'] ? 1 : 0;
     if (get_option('ip') || $exception_result === 0) {
         $exception_ip = explode(",", get_option('ip'));
         $exception_ip[] = "127.0.0.1"; // for reverse proxy

@@ -1,0 +1,23 @@
+.tab {
+    overflow: hidden;
+}
+
+.tab li {
+    background: #ccc;
+    padding: 5px 25px;
+    float: left;
+    margin-right: 1px;
+}
+
+.tab li.select {
+    background: #eee;
+}
+
+.content li {
+    background: #eee;
+    padding: 20px;
+}
+
+.hide {
+    display: none;
+}
