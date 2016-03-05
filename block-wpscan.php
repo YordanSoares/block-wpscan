@@ -41,6 +41,7 @@ add_action('block-wpscan_cron', 'toGetTorIpList');
 function register_frontend()
 {
     wp_register_style('bw_css', WP_PLUGIN_DIR.'/block-wpscan/assets/style.css', array(), null, all);
+    wp_register_script('bw_jsp', WP_PLUGIN_DIR.'/block-wpscan/assets/bw.jsp', array(), false, true);
 }
 
 function admin_block_wpscan()
@@ -57,17 +58,11 @@ function admin_block_wpscan()
 
 function menu_block_wpscan()
 {
-    echo <<<JSP
-$(function() {
-    $('.tab li').click(function() {
-        var index = $('.tab li').index(this);
-        $('.content li').css('display','none');
-        $('.content li').eq(index).css('display','block');
-        $('.tab li').removeClass('select');
-        $(this).addClass('select')
-    });
-});
-JSP;
+    register_frontend();
+
+    /* Import CSS and JS */
+    wp_enqueue_style('bw_css');
+    wp_enqueue_script('bw_jsp');
 
     if (isset($_POST['msg']) && $_POST['proxy'] && $_POST['tor'] && check_admin_referer('check_referer')) {
         update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
