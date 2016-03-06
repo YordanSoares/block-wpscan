@@ -34,14 +34,23 @@ if (!defined('ABSPATH')) {
 }
 
 add_action('admin_menu', 'admin_block_wpscan');
+add_action('admin_enqueue_scripts', 'register_frontend');
 add_action('init', 'block_wpscan');
-add_action('block-wpscan_cron', 'toGetTorIpList');
 
 /* Register CSS and JS */
 function register_frontend()
 {
-    wp_register_style('bw_css', WP_PLUGIN_DIR.'/block-wpscan/assets/style.css', array(), null, all);
-    wp_register_script('bw_jsp', WP_PLUGIN_DIR.'/block-wpscan/assets/bw.jsp', array(), false, true);
+    wp_deregister_script('jquery');
+    wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js', array(), NULL, true);
+    wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
+    wp_register_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/bw.js', array(), NULL, false);
+    wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
+    wp_register_style('style.css', plugin_dir_url(__FILE__) . 'assets/css/style.css', array(), NULL);
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('bootstrap_js');
+    wp_enqueue_script('bw.js');
+    wp_enqueue_style('bootstrap_css');
+    wp_enqueue_style('style.css');
 }
 
 function admin_block_wpscan()
@@ -52,18 +61,12 @@ function admin_block_wpscan()
         'administrator',
         'block-wpscan',
         'menu_block_wpscan',
-        plugins_url('assets/images/icon.png', __FILE__)
+        plugin_dir_url(__FILE__) . 'assets/images/icon.png'
     );
 }
 
 function menu_block_wpscan()
 {
-    register_frontend();
-
-    /* Import CSS and JS */
-    wp_enqueue_style('bw_css');
-    wp_enqueue_script('bw_jsp');
-
     if (isset($_POST['msg']) && $_POST['proxy'] && $_POST['tor'] && check_admin_referer('check_referer')) {
         update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
@@ -78,16 +81,15 @@ function menu_block_wpscan()
     $wp_n = wp_nonce_field('check_referer');
 
     echo <<<HTML
+    <div id="container">
     <h1>block-wpscan</h1>
 
-    <ul class="tab">
-    <li class="select">Setting</li>
-    <li>Log</li>
-    </ul>
-
-    <ul class="content">
-<li>
-    <form action="" method="post">
+<ul class="tab">
+	<li class="select">Setting</li>
+	<li>Log</li>
+</ul>
+<ul class="content">
+	<li><form action="" method="post">
     ${wp_n}
     <h2>When block the access, What message do you want to display?</h2>
     <p>Example: Fuck U</p>
@@ -124,20 +126,17 @@ HTML;
     <br>
     <p>This plugin is developing.<p>
     <p>----------------------------------------------------------------------------------------------</p >
-    <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p>
-<li>
+    <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p></li>
+	<li class="hide">Log Here</li>
+</ul>
+</div>
 
-<li class="hide">
-aaaa
-</li>
 HTML;
 }
 
 function block_wpscan()
 {
     /**
-     * wpscan は HTTP_ACCEPT_LANGUAGE がないから拒否
-     * Proxy と Tor は ON / OFF で拒否するか決めよう
      * 0 : reject
      * 1 : accept
      */
@@ -165,7 +164,7 @@ function block_wpscan()
         $tor_result = $result === null ? 1 : $result->result;
     }
     /**
-     * 例外のIP設定
+     * Exception IP
      * 自分自身のアクセスは例外（忘れてたンゴｗ）
      * サーバー自身のAPIを取得するのもAPI依存だからエラー処理
      */
@@ -184,7 +183,7 @@ function block_wpscan()
         }
     }
     /**
-     * ブラウザの優先言語で判別。
+     * Browser's languages
      */
     if (filter_input(INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE', FILTER_SANITIZE_SPECIAL_CHARS)) {
         $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
@@ -204,11 +203,11 @@ function block_wpscan()
         $browser_result = 0;
     }
     /**
-     * Googlebot 判別
+     * Googlebot
      */
     $bot_result = strpos(gethostbyaddr($_SERVER['REMOTE_ADDR']), "google.com") === false ? $bot_result = 0 : $bot_result = 1;
     /**
-     * ユーザーエージェントで判別
+     * User-Agent
      */
     if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
         if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) {

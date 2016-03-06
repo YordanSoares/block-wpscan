@@ -4,7 +4,7 @@
 
 .tab li {
     background: #ccc;
-    padding: 5px 25px;
+    padding: 5px 10px;
     float: left;
     margin-right: 1px;
 }
@@ -15,7 +15,7 @@
 
 .content li {
     background: #eee;
-    padding: 20px;
+    padding: 0px;
 }
 
 .hide {
