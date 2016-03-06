@@ -40,15 +40,10 @@ add_action('init', 'block_wpscan');
 /* Register CSS and JS */
 function register_frontend()
 {
-    wp_deregister_script('jquery');
-    wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js', array(), NULL, true);
     wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
-    wp_register_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/bw.js', array(), NULL, false);
     wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
     wp_register_style('style.css', plugin_dir_url(__FILE__) . 'assets/css/style.css', array(), NULL);
-    wp_enqueue_script('jquery');
     wp_enqueue_script('bootstrap_js');
-    wp_enqueue_script('bw.js');
     wp_enqueue_style('bootstrap_css');
     wp_enqueue_style('style.css');
 }
@@ -81,15 +76,19 @@ function menu_block_wpscan()
     $wp_n = wp_nonce_field('check_referer');
 
     echo <<<HTML
-    <div id="container">
+    <div class="container-fluid">
     <h1>block-wpscan</h1>
 
-<ul class="tab">
-	<li class="select">Setting</li>
-	<li>Log</li>
-</ul>
-<ul class="content">
-	<li><form action="" method="post">
+<div id="tabmenu">
+    <div id="tab">
+        <a href="#tab1">Setting</a>
+        <a href="#tab2">Log</a>
+    </div>
+    <div id="tab_contents">
+        <ul>
+        <!-- START Setting -->
+            <li id="tab1" name="tab1">
+            <form action="" method="post">
     ${wp_n}
     <h2>When block the access, What message do you want to display?</h2>
     <p>Example: Fuck U</p>
@@ -122,13 +121,19 @@ HTML;
     <br>
     <br>
     <input type="submit" value="Save all">
+    </form>
     <br>
     <br>
     <p>This plugin is developing.<p>
     <p>----------------------------------------------------------------------------------------------</p >
-    <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p></li>
-	<li class="hide">Log Here</li>
-</ul>
+    <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p>
+</li>
+<!-- END Setting -->
+            <li id="tab2" name="tab2">"No2" this is tab container.you can write anythig.</li>
+        </ul>
+    </div>
+</div>
+
 </div>
 
 HTML;
