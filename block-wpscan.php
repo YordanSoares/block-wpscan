@@ -90,7 +90,7 @@ function menu_block_wpscan()
         return $result->msg;
     }
 
-    echo <<<HTML
+    ?>
     <h1>block-wpscan</h1>
 
     <hr>
@@ -100,98 +100,116 @@ function menu_block_wpscan()
         <li><a href="#tab2" data-toggle="tab">Log</a></li>
     </ul>
 
-<!-- START Setting PAGE -->
+    <!-- START Setting PAGE -->
     <div class="container-fluid">
-        <div class="tab-content">
-            <div class="tab-pane active" id="tab1">
-                <div class="row">
-                    <div class="col-sm-7">
-                        <form action="" method="post" >
-                        ${wp_n}
-                            <div class="form-group">
-                                <h3>What message do you want to display, when the access is blocked.</h3>
-                                    <textarea class="form-control" type="text" name="msg" placeholder="Example: Fuck You !">${msg}</textarea>
-                                <p class="help-block">Can't use HTML. Coming soon.</p>
-                            </div>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab1">
+            <div class="row">
+                <div class="col-sm-7">
+                    <form action="" method="post">
+                        <?php $wp_n ?>
+                        <div class="form-group">
+                            <h3>What message do you want to display, when the access is blocked.</h3>
+                            <textarea class="form-control" type="text" name="msg"
+                                      placeholder="Example: Fuck You !"><?= $msg ?></textarea>
+                            <p class="help-block">Can't use HTML. Coming soon.</p>
+                        </div>
 
 
-            <br>
+                        <br>
 
-            <div class="form-group">
-                <h3>Block Proxy ON / OFF</h3>
-                <label class="radio-inline">
-HTML;
-    echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
-    echo "</label>";
-    echo "<label class=\"radio-inline\">";
-    echo $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
-    echo <<<HTML
-                </label>
-            </div>
+                        <div class="form-group">
+                            <h3>Block Proxy ON / OFF</h3>
+                            <label class="radio-inline">
 
-            <br>
+                                <?= $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON"; ?>
+                            </label>;
+                            <label class="radio-inline">
+                                <?= $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF"
+                                    : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF"; ?>
+                            </label>
+                        </div>
 
-            <div class="form-group">
-                <h3>Block Tor ON / OFF</h3>
-                <h5>If you check ON, It takes a bit of a while load time. Please test.</h5>
-                <label class="radio-inline">
-HTML;
-    echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
-    echo "</label>";
-    echo "<label class=\"radio-inline\">";
-    echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
-    echo <<<HTML
-                </label>
-            </div>
+                        <br>
 
-            <br>
+                        <div class="form-group">
+                            <h3>Block Tor ON / OFF</h3>
+                            <h5>If you check ON, It takes a bit of a while load time. Please test.</h5>
+                            <label class="radio-inline">
+                                <?= $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" :
+                                    "<input type=\"radio\" name=\"tor\" value=\"ON\">ON"; ?>
+                            </label>
+                            <label class="radio-inline">
+                                <?= $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" :
+                                    "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF"; ?>
+                            </label>
+                        </div>
 
-            <div class="form-group">
-                <h3>Exception IP</h3>
-                <h5>If you have many exception IPs,Please sprit with ","<br>
-                You should add server's ip<global> for other plugins. ex)Broken Link Checker<br>
-                Example: 1.1.1.1,2.2.2.2,3.3.3.3</h5>
-                    <input class="form-control" type="text" name="ip" value="${ip}">
-            </div>
+                        <br>
 
-            <br>
+                        <div class="form-group">
+                            <h3>Exception IP</h3>
+                            <h5>If you have many exception IPs,Please sprit with ","<br>
+                                You should add server's ip
+                                <global> for other plugins. ex)Broken Link Checker<br>
+                                    Example: 1.1.1.1,2.2.2.2,3.3.3.3
+                            </h5>
+                            <input class="form-control" type="text" name="ip" value="<?= $ip ?>">
+                        </div>
 
-            <div class="form-group">
-                <h3>Log fnction</h3>
-                <h5>If you check on, It takes a bit of a while load time. Please test.</h5>
-                <label class="radio-inline">
-HTML;
-    echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"log\" value=\"ON\">ON";
-    echo "</label>";
-    echo "<label class=\"radio-inline\">";
-    echo $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF";
+                        <br>
 
-    echo <<<HTML
-                </label>
-            </div>
+                        <div class="form-group">
+                            <h3>Log fnction</h3>
+                            <h5>If you check on, It takes a bit of a while load time. Please test.</h5>
+                            <label class="radio-inline">
+                                <?= $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" :
+                                    "<input type=\"radio\" name=\"log\" value=\"ON\">ON"; ?>
+                            </label>
+                            <label class="radio-inline">
+                                <?= $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" :
+                                    "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF"; ?>
+                            </label>
+                        </div>
 
-            <br>
+                        <br>
 
-                    <input class="btn btn-default" type="submit" value="Save all">
-                </form>
-            </div>
+                        <input class="btn btn-default" type="submit" value="Save all">
+                    </form>
+                </div>
 
-            <div class="col-sm-1"></div>
+                <div class="col-sm-1"></div>
 
-            <div class="col-sm-4">
-                <img src="assets/images/icon-256x256.png" class="img-rounded img-responsive">
+                <div class="col-sm-4">
+                    <br>
+                    <img src="<?= plugin_dir_url(__FILE__) . 'assets/images/icon-256x256.png' ?>" class="img-rounded img-responsive">
+                    <h3>block-wpscan</h3>
+                    <p>This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all unauthorized access.
+                        Tor is judged by API Server. If Tor's node isn't registration of API Server's node list, It can't block Tor access.
+                        About 80% can block.
+
+                        * Exception IPs.
+                        * Proxy, Tor block ON / OFF.
+                        * Edit message.
+
+                        You should add server's global ip for other plugins. ex)Broken Link Checker.
+                        Googlebot can access own server.
+
+                        If you have any problems or requests, Please contact me with github or twitter.
+                        Twitter : https://twitter.com/lu_iskun
+                        Github  : https://github.com/rluisr/block-wpscan</p>
+                </div>
+
             </div>
         </div>
-    </div>
-<!-- END Setting PAGE -->
+        <!-- END Setting PAGE -->
 
-<!-- START Log PAGE -->
+        <!-- START Log PAGE -->
         <div class="tab-pane" id="tab2">
             <h1></h1>
         </div>
     </div>
-HTML;
-}
+<?php }
 
 function block_wpscan()
 {
@@ -254,7 +272,8 @@ function block_wpscan()
         $browser_result = 0;
     }
     /* Googlebot */
-    $bot_result = strpos(gethostbyaddr($_SERVER['REMOTE_ADDR']), "google.com") === false ? $bot_result = 0 : $bot_result = 1;
+    $bot_result = strpos(gethostbyaddr($_SERVER['REMOTE_ADDR']), "google.com") === false ? $bot_result = 0 : $bot_result
+        = 1;
     /* UserAgent */
     if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
         if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) {
@@ -272,23 +291,25 @@ function block_wpscan()
     }
 
 
-    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) {
+    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result ===
+        0
+    ) {
         $result = 0;
     }
     if ($bot_result === 1 || $exception_result === 1) {
         $result = 1;
     }
 
-    //echo "HOST: $ip\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA: $ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result\r\nREMOTE_ADDR: $remote\r\nSERVER_ADDR: $server";
+    //echo "HOST: $ip\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA:$ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result\r\nREMOTE_ADDR:$remote\r\nSERVER_ADDR: $server";
 
     if ($result === 0) {
-        header("HTTP/1.0 406 Not Acceptable");
+        header("HTTP / 1.0 406 Not Acceptable");
         die(esc_html(get_option('msg')));
     }
 }
 
 /*
- * 0.1.1はログと、UIの改善
- * 0.2.1はメッセージ表示機能
- * 0.3.1はHTMLの表示、リダイレクトの機能
- */
+* 0.1.1はログと、UIの改善
+* 0.2.1はメッセージ表示機能
+* 0.3.1はHTMLの表示、リダイレクトの機能
+*/
