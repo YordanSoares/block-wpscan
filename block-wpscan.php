@@ -65,69 +65,98 @@ function menu_block_wpscan()
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('tor', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('ip', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'ip', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('log', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
     }
 
     $msg = get_option('msg');
     $proxy = get_option('proxy');
     $tor = get_option('tor');
     $ip = get_option('ip');
-    $wp_n = wp_nonce_field('check_referer');
+    $log = get_option('log');
+    $wp_n = wp_ngonce_field('check_referer');
 
     echo <<<HTML
     <div class="container-fluid">
     <h1>block-wpscan</h1>
 
     <ul class="nav nav-tabs">
-  <li class="active"><a href="#tab1" data-toggle="tab">Setting</a></li>
-  <li><a href="#tab2" data-toggle="tab">Log</a></li>
-</ul>
+        <li class="active"><a href="#tab1" data-toggle="tab">Setting</a></li>
+        <li><a href="#tab2" data-toggle="tab">Log</a></li>
+    </ul>
 
-<div class="tab-content">
-  <div class="tab-pane active" id="tab1">
-  <form action="" method="post">
-    ${wp_n}
-    <h2>When block the access, What message do you want to display?</h2>
-    <p>Example: Fuck U</p>
-    <input type="text" name="msg" value="${msg}">
-    <br>
-    <br>
-    <h2>Block Proxy ON / OFF</h2>
+<!-- START Setting PAGE -->
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab1">
+            <form action="" method="post">
+            ${wp_n}
+            <div class="form-group">
+                <h3>What message do you want to display, when the access is blocked.</h3>
+                <p>Example: Fuck U</p>
+                <input type="text" name="msg" value="${msg}">
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <h3>Block Proxy ON / OFF</h3>
 HTML;
-    echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
-    echo $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
+                echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
+                echo $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
     echo <<<HTML
-    <br>
-    <br>
-    <br>
-    <h2>Block Tor ON / OFF</h2>
-    <p>If you check ON, It takes a bit of a while load time. Please test.</p>
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <h3>Block Tor ON / OFF</h3>
+                <p>If you check ON, It takes a bit of a while load time. Please test.</p>
 HTML;
-    echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
-    echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
+                echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
+                echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
     echo <<<HTML
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <h3>Exception IP</h3>
+                <p>If you have many exception IPs,Please sprit with ","<br>
+                You should add server's ip<global> for other plugins. ex)Broken Link Checker<br>
+                Example: 1.1.1.1,2.2.2.2,3.3.3.3</p>
+                <input type="text" name="ip" value="${ip}">
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <h3>Log fnction</h3>
+                <p>If you check on, It takes a bit of a while load time. Please test.</p>
+HTML;
+                echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"log\" value=\"ON\">ON";
+                echo $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF";
+
+    echo <<<HTML
+            </div>
+
+            <br>
+
+            <input class="btn btn-default" type="submit" value="Save all">
+            </form>
+
     <br>
     <br>
-    <br>
-    <h3>Exception IP</h3>
-    <p>If you have many exception IPs,Please sprit with ","<br>
-    You should add server's ip<global> for other plugins. ex)Broken Link Checker<br>
-    Example: 1.1.1.1,2.2.2.2,3.3.3.3</p>
-    <input type="text" name="ip" value="${ip}">
-    <br>
-    <br>
-    <br>
-    <input type="submit" value="Save all">
-    </form>
-    <br>
-    <br>
+
     <p>This plugin is developing.<p>
     <p>----------------------------------------------------------------------------------------------</p >
     <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p>
 </div>
-
-  <div class="tab-pane" id="tab2">Tab2 Content</div>
-</div>
-
+<!-- END Setting PAGE -->
+HTML;
+        echo "<div class=\"tab-pane\" id=\"tab2\">";
+            getLog();
+        echo "</div>";
+    echo <<<HTML
+    </div>
 </div>
 
 HTML;
