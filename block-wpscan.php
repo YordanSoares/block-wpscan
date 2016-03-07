@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.0.5
+Version: 0.1.1
 Author URI: https://luispc.com/
 */
 
@@ -79,16 +79,13 @@ function menu_block_wpscan()
     <div class="container-fluid">
     <h1>block-wpscan</h1>
 
-<div id="tabmenu">
-    <div id="tab">
-        <a href="#tab1">Setting</a>
-        <a href="#tab2">Log</a>
-    </div>
-    <div id="tab_contents">
-        <ul>
-        <!-- START Setting -->
-            <li id="tab1" name="tab1">
-            <form action="" method="post">
+<ul class="tab">
+	<li class="select">Setting</li>
+	<li>Log</li>
+</ul>
+<ul class="bw">
+<li>
+    <form action="" method="post">
     ${wp_n}
     <h2>When block the access, What message do you want to display?</h2>
     <p>Example: Fuck U</p>
@@ -128,11 +125,9 @@ HTML;
     <p>----------------------------------------------------------------------------------------------</p >
     <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p>
 </li>
-<!-- END Setting -->
-            <li id="tab2" name="tab2">"No2" this is tab container.you can write anythig.</li>
-        </ul>
-    </div>
-</div>
+
+<li class="hide">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
+</ul>
 
 </div>
 

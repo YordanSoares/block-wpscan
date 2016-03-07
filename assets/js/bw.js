@@ -1,9 +1,9 @@
 $(function () {
     $('.tab li').click(function () {
         var index = $('.tab li').index(this);
-        $('.content li').css('display', 'none');
-        $('.content li').eq(index).css('display', 'block');
-        $('.tab li').removeClass('select');
+        $('.bw li').css('display', 'none');
+        $('.bw li').eq(index).css('display', 'block');
+        $('.bw li').removeClass('select');
         $(this).addClass('select')
     });
 });
