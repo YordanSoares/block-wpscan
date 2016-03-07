@@ -42,10 +42,8 @@ function register_frontend()
 {
     wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
     wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
-    wp_register_style('style.css', plugin_dir_url(__FILE__) . 'assets/css/style.css', array(), NULL);
     wp_enqueue_script('bootstrap_js');
     wp_enqueue_style('bootstrap_css');
-    wp_enqueue_style('style.css');
 }
 
 function admin_block_wpscan()
@@ -79,13 +77,14 @@ function menu_block_wpscan()
     <div class="container-fluid">
     <h1>block-wpscan</h1>
 
-<ul class="tab">
-	<li class="select">Setting</li>
-	<li>Log</li>
+    <ul class="nav nav-tabs">
+  <li class="active"><a href="#tab1" data-toggle="tab">Setting</a></li>
+  <li><a href="#tab2" data-toggle="tab">Log</a></li>
 </ul>
-<ul class="bw">
-<li>
-    <form action="" method="post">
+
+<div class="tab-content">
+  <div class="tab-pane active" id="tab1">
+  <form action="" method="post">
     ${wp_n}
     <h2>When block the access, What message do you want to display?</h2>
     <p>Example: Fuck U</p>
@@ -124,10 +123,10 @@ HTML;
     <p>This plugin is developing.<p>
     <p>----------------------------------------------------------------------------------------------</p >
     <p>If you have any problems or requests, Please contact me <a href="https://twitter.com/lu_iskun">@lu_iskun</a> or <a href="https://github.com/rluisr/block-wpscan">github</a>.</p>
-</li>
+</div>
 
-<li class="hide">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-</ul>
+  <div class="tab-pane" id="tab2">Tab2 Content</div>
+</div>
 
 </div>
 
