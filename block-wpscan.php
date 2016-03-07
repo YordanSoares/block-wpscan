@@ -76,6 +76,20 @@ function menu_block_wpscan()
     $log = get_option('log');
     $wp_n = wp_nonce_field('check_referer');
 
+    /* APIサーバーからのメッセージ受信 */
+    function toGetInfo()
+    {
+        $url = 'https://c.xzy.pw/judgementAPI-for-Tor/message.php';
+        $options = array(
+            'http' => array(
+                'method' => 'POST'
+            ),
+        );
+        $context = stream_context_create($options);
+        $result = json_decode(file_get_contents($url, false, $context));
+        return $result->msg;
+    }
+
     echo <<<HTML
     <h1>block-wpscan</h1>
 
@@ -107,10 +121,10 @@ function menu_block_wpscan()
                 <h3>Block Proxy ON / OFF</h3>
                 <label class="radio-inline">
 HTML;
-                echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
-                echo "</label>";
-                echo "<label class=\"radio-inline\">";
-                echo $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
+    echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON";
+    echo "</label>";
+    echo "<label class=\"radio-inline\">";
+    echo $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF";
     echo <<<HTML
                 </label>
             </div>
@@ -122,10 +136,10 @@ HTML;
                 <h5>If you check ON, It takes a bit of a while load time. Please test.</h5>
                 <label class="radio-inline">
 HTML;
-                echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
-                echo "</label>";
-                echo "<label class=\"radio-inline\">";
-                echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
+    echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON";
+    echo "</label>";
+    echo "<label class=\"radio-inline\">";
+    echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF";
     echo <<<HTML
                 </label>
             </div>
@@ -147,10 +161,10 @@ HTML;
                 <h5>If you check on, It takes a bit of a while load time. Please test.</h5>
                 <label class="radio-inline">
 HTML;
-                echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"log\" value=\"ON\">ON";
-                echo "</label>";
-                echo "<label class=\"radio-inline\">";
-                echo $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF";
+    echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"log\" value=\"ON\">ON";
+    echo "</label>";
+    echo "<label class=\"radio-inline\">";
+    echo $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF";
 
     echo <<<HTML
                 </label>
@@ -161,11 +175,11 @@ HTML;
                     <input class="btn btn-default" type="submit" value="Save all">
                 </form>
             </div>
-            <div class="col-sm-1">
-                <div style="background-color:gray; width:2px; height:100%;"></div>
-            </div>
+
+            <div class="col-sm-1"></div>
+
             <div class="col-sm-4">
-                <p>Here</p>
+                <img src="assets/images/icon-256x256.png" class="img-rounded img-responsive">
             </div>
         </div>
     </div>

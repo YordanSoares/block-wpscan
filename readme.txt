@@ -15,7 +15,7 @@ Block wpscan, proxy and tor access.
 Block wpscan, proxy and tor access.
 This plugin calls c.xyz.pw to detect if a user is on a TOR.
 https://c.xzy.pw/judgementAPI-for-Tor/index.html
-And calls https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js and https://maxcdn.bootstrapcdn.com/bootstrap
+And calls https://maxcdn.bootstrapcdn.com/bootstrap
 
 == Installation ==
 
