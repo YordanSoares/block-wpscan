@@ -39,13 +39,14 @@ add_action('admin_enqueue_scripts', 'register_frontend');
 add_action('init', 'block_wpscan');
 
 /* Register CSS and JS */
-function register_frontend()
+function register_frontend($hook)
 {
-    //wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
-    //wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
-    wp_register_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
-    wp_register_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', array(), NULL, false);
-    wp_enqueue_script('jquery');
+    if ('edit.php' != $hook) {
+        return;
+    }
+
+    wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
+    wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
     wp_enqueue_script('bootstrap_js');
     wp_enqueue_style('bootstrap_css');
 }
