@@ -39,16 +39,13 @@ add_action('admin_enqueue_scripts', 'register_frontend');
 add_action('init', 'block_wpscan');
 
 /* Register CSS and JS */
-function register_frontend($hook)
+function register_frontend($hook_suffix)
 {
-    if ('edit.php' != $hook) {
-        return;
+    if ($hook_suffix == 'toplevel_page_block-wpscan') {
+        wp_enqueue_script('jquery');
+        wp_enqueue_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
+        wp_enqueue_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css');
     }
-
-    wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
-    wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
-    wp_enqueue_script('bootstrap_js');
-    wp_enqueue_style('bootstrap_css');
 }
 
 function admin_block_wpscan()
