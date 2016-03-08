@@ -62,7 +62,7 @@ function admin_block_wpscan()
 
 function menu_block_wpscan()
 {
-    if (isset($_POST['msg']) && check_admin_referer('check_referer')) {
+    if (isset($_POST['msg']) && check_admin_referer('check_admin_referer')) {
         update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('tor', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
@@ -75,7 +75,6 @@ function menu_block_wpscan()
     $tor = get_option('tor');
     $ip = get_option('ip');
     $log = get_option('log');
-    $wp_n = wp_nonce_field('check_referer');
 
     /* APIサーバーからのメッセージ受信 */
     function toGetInfo()
@@ -105,7 +104,6 @@ function menu_block_wpscan()
                 <div class="row">
                     <div class="col-sm-7">
                         <form action="" method="post">
-                            <?php $wp_n ?>
                             <div class="form-group">
                                 <h3>What message do you want to display, when the access is blocked.</h3>
                             <textarea class="form-control" type="text" name="msg"
@@ -119,7 +117,7 @@ function menu_block_wpscan()
                                 <h3>Block Proxy ON / OFF</h3>
                                 <label class="radio-inline">
                                     <?= $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON"; ?>
-                                </label>;
+                                </label>
                                 <label class="radio-inline">
                                     <?= $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF"; ?>
                                 </label>
@@ -170,6 +168,7 @@ function menu_block_wpscan()
                             <br>
 
                             <input class="btn btn-default" type="submit" value="Save all">
+                            <?php wp_nonce_field('check_admin_referer'); ?>
                         </form>
                     </div>
 
