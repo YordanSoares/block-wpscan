@@ -43,8 +43,8 @@ function register_frontend($hook_suffix)
 {
     if ($hook_suffix == 'toplevel_page_block-wpscan') {
         wp_enqueue_script('jquery');
-        wp_enqueue_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
-        wp_enqueue_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css');
+        wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
+        wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
     }
 }
 
