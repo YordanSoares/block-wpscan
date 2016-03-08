@@ -34,6 +34,8 @@ And calls https://maxcdn.bootstrapcdn.com/bootstrap
 = 0.1.1 =
 * Change UI.
 * Add logging function.
+* Add Information function from my server.
+* Fix code of Googlebots.
 
 = 0.0.5 =
 * Fix code.
