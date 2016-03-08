@@ -113,18 +113,15 @@ function menu_block_wpscan()
                                 <p class="help-block">Can't use HTML. Coming soon.</p>
                             </div>
 
-
                             <br>
 
                             <div class="form-group">
                                 <h3>Block Proxy ON / OFF</h3>
                                 <label class="radio-inline">
-
                                     <?= $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON"; ?>
                                 </label>;
                                 <label class="radio-inline">
-                                    <?= $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF"
-                                        : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF"; ?>
+                                    <?= $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF"; ?>
                                 </label>
                             </div>
 
@@ -219,7 +216,6 @@ function menu_block_wpscan()
                             class="text-info">filesize:</span><?= filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
                         Mbytes <span
                             class="text-info">Path:</span><?= plugin_dir_path(__FILE__) . 'block.list' ?></span></h3>
-
                 <table class="table table-responsive">
                     <thead>
                     <tr>
@@ -267,7 +263,7 @@ function toGetLog()
             $b++;
         }
     } else {
-        echo "No data yet.";
+        echo "No data yet. or your setting is off.";
     }
     return $array;
 }
@@ -369,7 +365,9 @@ function block_wpscan()
     //echo "HOST: $ip\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA:$ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result\r\nREMOTE_ADDR:$remote\r\nSERVER_ADDR: $server";
 
     if ($result === 0) {
-        toSetLog($_SERVER['REMOTE_ADDR'], gethostbyaddr($_SERVER['REMOTE_ADDR']), date("Y-m-d H:i"));
+        if (get_option('log') == "ON") {
+            toSetLog($_SERVER['REMOTE_ADDR'], gethostbyaddr($_SERVER['REMOTE_ADDR']), date("Y-m-d H:i"));
+        }
         header("HTTP / 1.0 406 Not Acceptable");
         die(esc_html(get_option('msg')));
     }
