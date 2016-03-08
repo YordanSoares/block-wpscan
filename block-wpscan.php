@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.1.1
+Version: 0.2.1
 Author URI: https://luispc.com/
 */
 
@@ -41,8 +41,10 @@ add_action('init', 'block_wpscan');
 /* Register CSS and JS */
 function register_frontend()
 {
-    wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
-    wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
+    //wp_register_script('bootstrap_js', plugin_dir_url(__FILE__) . 'assets/js/bootstrap.min.js', array(), NULL, false);
+    //wp_register_style('bootstrap_css', plugin_dir_url(__FILE__) . 'assets/css/bootstrap.min.css', array(), NULL, false);
+    wp_register_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
+    wp_register_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', array(), NULL, false);
     wp_enqueue_script('jquery');
     wp_enqueue_script('bootstrap_js');
     wp_enqueue_style('bootstrap_css');
@@ -214,7 +216,11 @@ function menu_block_wpscan()
 
             <!-- START Log PAGE -->
             <div class="tab-pane" id="tab2">
-                <h3>Blocked list</h3>
+                <h3>Blocked list <span class="small"><span class="text-info">Blocked:</span><?= count(toGetLog()); ?>
+                        <span
+                            class="text-info">filesize:</span><?= filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
+                        Mbytes <span
+                            class="text-info">Path:</span><?= plugin_dir_path(__FILE__) . 'block.list' ?></span></h3>
 
                 <table class="table table-responsive">
                     <thead>
@@ -226,10 +232,11 @@ function menu_block_wpscan()
                     </tr>
                     </thead>
                     <tbody>
-
+                    <?php foreach (toGetLog() as $row) {
+                        echo $row;
+                    } ?>
                     </tbody>
                 </table>
-                <?= toGetLog(); ?>
             </div>
         </div>
     </div>
@@ -243,14 +250,28 @@ function toSetLog($ip, $host, $date)
 
 function toGetLog()
 {
+    $b = 1;
+
     if ($file = file(plugin_dir_path(__FILE__) . 'block.list')) {
         foreach ($file as $row) {
-            $ip = preg_replace("/|.*/", "", $row, -1);
+            $a = explode("|", $row);
+            $ip = $a[0];
+            $hostname = $a[1];
+            $date = $a[2];
+
+            $array[] = "<tr>
+                  <td>${b}</td>
+                  <td>${ip}</td>
+                  <td>${hostname}</td>
+                  <td>${date}</td>
+                  </tr>";
+
+            $b++;
         }
     } else {
         echo "No data yet.";
     }
-    return $ip;
+    return $array;
 }
 
 function block_wpscan()
@@ -357,7 +378,5 @@ function block_wpscan()
 }
 
 /*
-* 0.1.1はログと、UIの改善
-* 0.2.1はメッセージ表示機能
 * 0.3.1はHTMLの表示、リダイレクトの機能
 */

@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block
 Requires at least: 4.0.0
 Tested up to: 4.4.2
-Stable tag: 0.1.1
+Stable tag: 0.2.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ Block wpscan, proxy and tor access.
 Block wpscan, proxy and tor access.
 This plugin calls c.xyz.pw to detect if a user is on a TOR.
 https://c.xzy.pw/judgementAPI-for-Tor/index.html
-And calls https://maxcdn.bootstrapcdn.com/bootstrap
+And calls https://maxcdn.bootstrapcdn.com/bootstrap , http://freegeoip.net/json/ for Log function.
 
 == Installation ==
 
@@ -31,7 +31,7 @@ And calls https://maxcdn.bootstrapcdn.com/bootstrap
 
 == Changelog ==
 
-= 0.1.1 =
+= 0.2.1 =
 * Change UI.
 * Add logging function.
 * Add Information function from my server.
