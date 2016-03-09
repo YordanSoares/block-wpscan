@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.2.2
+Version: 0.2.3
 Author URI: https://luispc.com/
 */
 
@@ -28,6 +28,8 @@ Author URI: https://luispc.com/
     Twitter : https://twitter.com/lu_iskun
     Github  : https://github.com/rluisr/block-wpscan
 */
+
+/* Rquire PHP5.4 ~ */
 
 /* Block direct access */
 if (!defined('ABSPATH')) {
@@ -62,6 +64,11 @@ function admin_block_wpscan()
 
 function menu_block_wpscan()
 {
+    /* short_open_tag が常にONは PHP 5.4から */
+    if (version_compare(PHP_VERSION, "5.4.0", "<")) {
+        echo "Require PHP5.4.0 higher. Your PHP VERSION is " . PHP_VERSION . "\r\n" . "Please check your short_open_tag on php.ini";
+    }
+
     if (isset($_POST['msg']) && check_admin_referer('check_admin_referer')) {
         update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
