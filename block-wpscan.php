@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.2.3
+Version: 0.2.4
 Author URI: https://luispc.com/
 */
 
@@ -28,8 +28,6 @@ Author URI: https://luispc.com/
     Twitter : https://twitter.com/lu_iskun
     Github  : https://github.com/rluisr/block-wpscan
 */
-
-/* Rquire PHP5.4 ~ */
 
 /* Block direct access */
 if (!defined('ABSPATH')) {
@@ -114,7 +112,7 @@ function menu_block_wpscan()
                             <div class="form-group">
                                 <h3>What message do you want to display, when the access is blocked.</h3>
                             <textarea class="form-control" type="text" name="msg"
-                                      placeholder="Example: Fuck You !"><?= $msg ?></textarea>
+                                      placeholder="Example: Fuck You !"><?php echo $msg ?></textarea>
                                 <p class="help-block">Can't use HTML. Coming soon.</p>
                             </div>
 
@@ -123,10 +121,10 @@ function menu_block_wpscan()
                             <div class="form-group">
                                 <h3>Block Proxy ON / OFF</h3>
                                 <label class="radio-inline">
-                                    <?= $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON"; ?>
+                                    <?php echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON"; ?>
                                 </label>
                                 <label class="radio-inline">
-                                    <?= $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF"; ?>
+                                    <?php echo $proxy == "OFF" ? "<input type=\"radio\" name=\"proxy\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"proxy\" value=\"OFF\">OFF"; ?>
                                 </label>
                             </div>
 
@@ -136,11 +134,11 @@ function menu_block_wpscan()
                                 <h3>Block Tor ON / OFF</h3>
                                 <h5>If you check ON, It takes a bit of a while load time. Please test.</h5>
                                 <label class="radio-inline">
-                                    <?= $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" :
+                                    <?php echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" :
                                         "<input type=\"radio\" name=\"tor\" value=\"ON\">ON"; ?>
                                 </label>
                                 <label class="radio-inline">
-                                    <?= $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" :
+                                    <?php echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" :
                                         "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF"; ?>
                                 </label>
                             </div>
@@ -154,7 +152,7 @@ function menu_block_wpscan()
                                     <global> for other plugins. ex)Broken Link Checker<br>
                                         Example: 1.1.1.1,2.2.2.2,3.3.3.3
                                 </h5>
-                                <input class="form-control" type="text" name="ip" value="<?= $ip ?>">
+                                <input class="form-control" type="text" name="ip" value="<?php echo $ip ?>">
                             </div>
 
                             <br>
@@ -163,11 +161,11 @@ function menu_block_wpscan()
                                 <h3>Log fnction</h3>
                                 <h5>If you check on, It takes a bit of a while load time. Please test.</h5>
                                 <label class="radio-inline">
-                                    <?= $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" :
+                                    <?php echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" :
                                         "<input type=\"radio\" name=\"log\" value=\"ON\">ON"; ?>
                                 </label>
                                 <label class="radio-inline">
-                                    <?= $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" :
+                                    <?php echo $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" :
                                         "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF"; ?>
                                 </label>
                             </div>
@@ -185,17 +183,18 @@ function menu_block_wpscan()
                         <br>
                         <div class="panel panel-primary">
                             <div class="panel-heading">Information</div>
-                            <div class="panel-body"><?= htmlspecialchars(toGetInfo()->msg); ?></div>
-                            <div class="panel-footer"><?= htmlspecialchars(toGetInfo()->date); ?></div>
+                            <div class="panel-body"><?php echo htmlspecialchars(toGetInfo()->msg); ?></div>
+                            <div class="panel-footer"><?php echo htmlspecialchars(toGetInfo()->date); ?></div>
                         </div>
 
-                        <img src="<?= plugin_dir_url(__FILE__) . 'assets/images/icon-256x256.png' ?>"
+                        <img src="<?php echo plugin_dir_url(__FILE__) . 'assets/images/icon-256x256.png' ?>"
                              class="img-rounded img-responsive">
                         <h3>block-wpscan</h3>
                         <p>This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all
                             unauthorized
                             access.
-                            Tor is judged by API Server. If Tor's node isn't registration of API Server's node list, It
+                            Tor is judged by API Server. If Tor's node isn't registration of API Server's node list,
+                            It
                             can't block Tor access.
                             About 80% can block.
 
@@ -217,11 +216,13 @@ function menu_block_wpscan()
 
             <!-- START Log PAGE -->
             <div class="tab-pane" id="tab2">
-                <h3>Blocked list <span class="small"><span class="text-info">Blocked:</span><?= count(toGetLog()); ?>
+                <h3>Blocked list <span class="small"><span
+                            class="text-info">Blocked:</span><?php echo count(toGetLog()); ?>
                         <span
-                            class="text-info">filesize:</span><?= filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
+                            class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
                         Mbytes <span
-                            class="text-info">Path:</span><?= plugin_dir_path(__FILE__) . 'block.list' ?></span></h3>
+                            class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
+                </h3>
                 <table class="table table-responsive">
                     <thead>
                     <tr>
@@ -307,7 +308,6 @@ function block_wpscan()
     if (get_option('ip') || $exception_result === 0) {
         $exception_ip = explode(",", get_option('ip'));
         $exception_ip[] = "127.0.0.1"; // for reverse proxy
-        $exception_ip[] = "163.215.6.1";
 
         foreach ($exception_ip as $row) {
             if ($row == $_SERVER['REMOTE_ADDR']) {
@@ -359,9 +359,7 @@ function block_wpscan()
     }
 
 
-    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result ===
-        0
-    ) {
+    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) {
         $result = 0;
     }
     if ($bot_result === 1 || $exception_result === 1) {

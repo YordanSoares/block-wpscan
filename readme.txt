@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block
 Requires at least: 4.0.0
 Tested up to: 4.4.2
-Stable tag: 0.2.3
+Stable tag: 0.2.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,9 @@ And https://maxcdn.bootstrapcdn.com/bootstrap for UI.
 2. block tor
 
 == Changelog ==
+
+= 0.2.4 =
+* Correspond less than PHP5.3
 
 = 0.2.3 =
 * Require PHP5.4 ~
