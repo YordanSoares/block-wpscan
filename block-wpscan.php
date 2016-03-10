@@ -62,11 +62,6 @@ function admin_block_wpscan()
 
 function menu_block_wpscan()
 {
-    /* short_open_tag が常にONは PHP 5.4から */
-    if (version_compare(PHP_VERSION, "5.4.0", "<")) {
-        echo "Require PHP5.4.0 higher. Your PHP VERSION is " . PHP_VERSION . "\r\n" . "Please check your short_open_tag on php.ini";
-    }
-
     if (isset($_POST['msg']) && check_admin_referer('check_admin_referer')) {
         update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
