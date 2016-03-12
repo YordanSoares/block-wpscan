@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block
 Requires at least: 4.0.0
 Tested up to: 4.4.2
-Stable tag: 0.2.5
+Stable tag: 0.3.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,13 @@ And https://maxcdn.bootstrapcdn.com/bootstrap for UI.
 2. block tor
 
 == Changelog ==
+
+= 0.3.1 =
+* Add User-Agent on Log function.
+* Add HTML function.
+* Add Redirect function.
+* Add Delete log list function.
+* Modify descending sort on Log list.
 
 = 0.2.5 =
 * Add Exception access from msn, yahoo, bing, hatena

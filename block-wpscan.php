@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.2.5
+Version: 0.3.1
 Author URI: https://luispc.com/
 */
 
@@ -38,16 +38,22 @@ add_action('admin_menu', 'admin_block_wpscan');
 add_action('admin_enqueue_scripts', 'register_frontend');
 add_action('init', 'block_wpscan');
 
-/* Register CSS and JS */
+/**
+ * jQuery, bootstrap の読み込み
+ */
 function register_frontend($hook_suffix)
 {
     if ($hook_suffix == 'toplevel_page_block-wpscan') {
         wp_enqueue_script('jquery');
         wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
         wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
+        wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), NULL, false);
     }
 }
 
+/**
+ * 管理関連の設定
+ */
 function admin_block_wpscan()
 {
     add_menu_page(
@@ -60,10 +66,15 @@ function admin_block_wpscan()
     );
 }
 
+/**
+ * 管理画面
+ */
 function menu_block_wpscan()
 {
-    if (isset($_POST['msg']) && check_admin_referer('check_admin_referer')) {
-        update_option('msg', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'msg', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+    if (isset($_POST['msg']) || isset($_POST['proxy']) || isset($_POST['tor']) || isset($_POST['ip']) || isset($_POST['log']) && check_admin_referer('check_admin_referer')) {
+        update_option('first', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'first', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        @update_option('msg', $_POST['msg']);
+        @update_option('redirect', esc_html(filter_input(INPUT_POST, 'redirect', FILTER_VALIDATE_URL)));
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('tor', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('ip', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'ip', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
@@ -71,10 +82,16 @@ function menu_block_wpscan()
     }
 
     $msg = get_option('msg');
+    $redirect = get_option('redirect');
     $proxy = get_option('proxy');
     $tor = get_option('tor');
     $ip = get_option('ip');
     $log = get_option('log');
+
+    /* Delete Block list */
+    if (isset($_POST['delete'])) {
+        unlink(plugin_dir_path(__FILE__) . 'block.list');
+    }
 
     /* APIサーバーからのメッセージ受信 */
     function toGetInfo()
@@ -105,16 +122,45 @@ function menu_block_wpscan()
                     <div class="col-sm-7">
                         <form action="" method="post">
                             <div class="form-group">
-                                <h3>What message do you want to display, when the access is blocked.</h3>
-                            <textarea class="form-control" type="text" name="msg"
-                                      placeholder="Example: Fuck You !"><?php echo $msg ?></textarea>
-                                <p class="help-block">Can't use HTML. Coming soon.</p>
+                                <h3>What do you want to do, when the access is blocked.</h3>
+                                <?php if (get_option('first') == 'msg') {
+                                    echo "<label class=\"radio-inline\">";
+                                    echo "<input type=\"radio\" name=\"first\" value=\"msg\" checked>Message";
+                                    echo "</label >";
+                                } else {
+                                    echo "<label class=\"radio-inline\">";
+                                    echo "<input type=\"radio\" name=\"first\" value=\"msg\">Message";
+                                    echo "</label >";
+                                }
+                                if (get_option('first') == 'redirect') {
+                                    echo "<label class=\"radio-inline\">";
+                                    echo "<input type=\"radio\" name=\"first\" value=\"redirect\" checked>Redirect";
+                                    echo "</label >";
+                                } else {
+                                    echo "<label class=\"radio-inline\">";
+                                    echo "<input type=\"radio\" name=\"first\" value=\"redirect\">Redirect";
+                                    echo "</label >";
+                                } ?>
+
+                                <br>
+                                <br>
+
+                                <?php if (get_option('first') == 'msg') {
+                                    echo "<textarea class=\"input_x form-control\" name=\"msg\" placeholder=\"What message do you want to display? It can use HTML.\">" . esc_html($msg) . "</textarea>";
+                                } else {
+                                    echo "<textarea class=\"input_x form-control\" style=\"display:none\" name=\"msg\" placeholder=\"What message do you want to display?\">" . esc_html($msg) . "</textarea>";
+                                }
+                                if (get_option('first') == 'redirect') {
+                                    echo "<input class=\"input_x form-control\" type=\"text\" name=\"redirect\" placeholder=\"Example: https://luispc.com/\" value=\"$redirect \">";
+                                } else {
+                                    echo "<input class=\"input_x form-control\" style=\"display:none\" type=\"text\" name=\"redirect\" placeholder=\"Example: https://luispc.com/\" value=\"$redirect \">";
+                                } ?>
                             </div>
 
                             <br>
 
                             <div class="form-group">
-                                <h3>Block Proxy ON / OFF</h3>
+                                <h3> Block Proxy ON / OFF </h3>
                                 <label class="radio-inline">
                                     <?php echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON"; ?>
                                 </label>
@@ -185,24 +231,22 @@ function menu_block_wpscan()
                         <img src="<?php echo plugin_dir_url(__FILE__) . 'assets/images/icon-256x256.png' ?>"
                              class="img-rounded img-responsive">
                         <h3>block-wpscan</h3>
-                        <p>This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all
-                            unauthorized
-                            access.
-                            Tor is judged by API Server. If Tor's node isn't registration of API Server's node list,
-                            It
-                            can't block Tor access.
-                            About 80% can block.
-
-                            * Exception IPs.
-                            * Proxy, Tor block ON / OFF.
-                            * Edit message.
-
-                            You should add server's global ip for other plugins. ex)Broken Link Checker.
-                            Googlebot can access own server.
-
-                            If you have any problems or requests, Please contact me with github or twitter.
-                            Twitter : https://twitter.com/lu_iskun
-                            Github : https://github.com/rluisr/block-wpscan</p>
+                        <p>This plugin block Tor, Proxy, Command Line access and wpscan.<br>
+                            But it can't block all unauthorized access.<br>
+                            Tor is judged by API Server. If Tor's node isn't registration of API Server's node list, It can't block Tor access.<br>
+                            About 80% can block.<br>
+                            <br>
+                            * Exception IPs.<br>
+                            * Proxy, Tor block ON / OFF.<br>
+                            * Edit message.<br>
+                            * Log function.<br>
+                            <br>
+                            You should add own server's global ip for other plugins. ex)Broken Link Checker.<br>
+                            Googlebot and other crawler can access own server.<br>
+                            <br>
+                            If you have any problems or requests, Please contact me with github or twitter.<br>
+                            Twitter : https://twitter.com/lu_iskun<br>
+                            Github : https://github.com/rluisr/block-wpscan<br></p>
                     </div>
 
                 </div>
@@ -211,19 +255,23 @@ function menu_block_wpscan()
 
             <!-- START Log PAGE -->
             <div class="tab-pane" id="tab2">
-                <h3>Blocked list <span class="small"><span
-                            class="text-info">Blocked:</span><?php echo count(toGetLog()); ?>
-                        <span
-                            class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
-                        Mbytes <span
-                            class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
-                </h3>
+                <form action="" method="post">
+                    <h3>Blocked list <span class="small"><span
+                                class="text-info">Blocked:</span><?php echo count(toGetLog()); ?>
+                            <span
+                                class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
+                            Mbytes <span
+                                class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
+                        <span><input type="submit" class="btn btn-danger" name="delete" value="Delete"></span>
+                    </h3>
+                </form>
                 <table class="table table-responsive">
                     <thead>
                     <tr>
                         <th>#</th>
                         <th>IP address</th>
                         <th>Hostname</th>
+                        <th>UserAgent(UA can camouflage. You shouldn't trust it.)</th>
                         <th>Date</th>
                     </tr>
                     </thead>
@@ -238,27 +286,41 @@ function menu_block_wpscan()
     </div>
 <?php }
 
-
-function toSetLog($ip, $host, $date)
+/**
+ * ログを保存する。
+ * 保存先は wp-content
+ *
+ * @param $ip IPアドレス
+ * @param $host ホストネーム
+ * @param $date 日付
+ */
+function toSetLog($ip, $host, $ua, $date)
 {
-    file_put_contents(plugin_dir_path(__FILE__) . 'block.list', "${ip}|${host}|${date}\r\n", FILE_APPEND | LOCK_EX);
+    file_put_contents(plugin_dir_path(__FILE__) . 'block.list', "${ip}|${host}|${ua}|${date}\r\n", FILE_APPEND | LOCK_EX);
 }
 
+/**
+ * ログ情報の取得　既にHTML整形済み
+ *
+ * @return array HTMLで整形されたログの情報
+ */
 function toGetLog()
 {
     $b = 1;
 
-    if ($file = file(plugin_dir_path(__FILE__) . 'block.list')) {
+    if ($file = array_reverse(file(plugin_dir_path(__FILE__) . 'block.list'))) {
         foreach ($file as $row) {
             $a = explode("|", $row);
             $ip = $a[0];
             $hostname = $a[1];
-            $date = $a[2];
+            $ua = $a[2];
+            $date = $a[3];
 
             $array[] = "<tr>
                   <td>${b}</td>
                   <td>${ip}</td>
                   <td>${hostname}</td>
+                  <td>${ua}</td>
                   <td>${date}</td>
                   </tr>";
 
@@ -270,6 +332,9 @@ function toGetLog()
     return $array;
 }
 
+/**
+ * コア的な部分
+ */
 function block_wpscan()
 {
     /**
@@ -335,14 +400,16 @@ function block_wpscan()
 
     /* Googlebot, msnbot */
     $bot = array("google", "msn", "yahoo", "bing", "hatena");
+    $host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
     foreach ($bot as $row) {
-        if (strpos(gethostbyaddr($_SERVER['REMOTE_ADDR'], $row)) !== false) {
+        if (strpos($host, $row) !== false) {
             $bot_result = 1;
             break;
         } else {
             $bot_result = 0;
         }
     }
+
     /* UserAgent */
     if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
         if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) {
@@ -368,14 +435,18 @@ function block_wpscan()
         $result = 1;
     }
 
-    //echo "HOST: $ip\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA:$ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result\r\nREMOTE_ADDR:$remote\r\nSERVER_ADDR: $server";
+    //echo "Result: $result\r\nIP: $ip\r\nHOST: $host\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA:$ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result\r\nREMOTE_ADDR:{$_SERVER['REMOTE_ADDR']}\r\nSERVER_ADDR: {$_SERVER['SERVER_ADDR']}";
 
     if ($result === 0) {
         if (get_option('log') == "ON") {
-            toSetLog($_SERVER['REMOTE_ADDR'], gethostbyaddr($_SERVER['REMOTE_ADDR']), date("Y-m-d H:i"));
+            toSetLog($_SERVER['REMOTE_ADDR'], gethostbyaddr($_SERVER['REMOTE_ADDR']), filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS), date("Y-m-d H:i"));
         }
-        header("HTTP / 1.0 406 Not Acceptable");
-        die(esc_html(get_option('msg')));
+        if (get_option('first') == "msg") {
+            header("HTTP / 1.0 406 Not Acceptable");
+            die(get_option('msg'));
+        } elseif (get_option('first') == "redirect") {
+            header('Location: ' . get_option('redirect'));
+        }
     }
 }
 
