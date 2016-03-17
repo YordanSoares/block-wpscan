@@ -215,7 +215,7 @@ class Image
         }
     }
 
-    public static function GetWidth($aImg = null)
+    public function GetWidth($aImg = null)
     {
         if ($aImg === null) {
             $aImg = $this->img;
@@ -223,7 +223,7 @@ class Image
         return imagesx($aImg);
     }
 
-    public static function GetHeight($aImg = null)
+    public function GetHeight($aImg = null)
     {
         if ($aImg === null) {
             $aImg = $this->img;
