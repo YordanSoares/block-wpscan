@@ -44,8 +44,14 @@ add_action('init', 'block_wpscan');
 function register_frontend($hook_suffix)
 {
     if ($hook_suffix == 'toplevel_page_block-wpscan') {
-        wp_enqueue_script('jquery');
+        wp_deregister_script('jquery');
+        wp_deregister_script('jquery-ui');
+        wp_enqueue_script('jquery', 'https://code.jquery.com/jquery-2.2.1.min.js');
+        wp_enqueue_script('jquery-ui', 'https://code.jquery.com/ui/1.11.2/jquery-ui.min.js');
         wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
+        wp_enqueue_script('googlecharts_loader.js', 'https://www.gstatic.com/charts/loader.js');
+        wp_enqueue_script('googlecharts.js', plugin_dir_url(__FILE__) . 'assets/js/googlecharts.js');
+        wp_enqueue_style('jquery-ui.css', 'https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css');
         wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
         wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), NULL, false);
     }
@@ -71,17 +77,6 @@ function admin_block_wpscan()
  */
 function menu_block_wpscan()
 {
-    include plugin_dir_url(__FILE__) . 'assets/charts4php/lib/inc/chartphp_dist.php';
-
-    $p = new chartphp();
-
-// set few params
-    $p->data = array(array(3, 7, 9, 1, 4, 6, 8, 2, 5), array(5, 3, 8, 2, 6, 2, 9, 2, 6));
-    $p->chart_type = "area";
-
-// render chart and get html/js output
-    $out = $p->render('c1');
-
     if (isset($_POST['msg']) || isset($_POST['proxy']) || isset($_POST['tor']) || isset($_POST['ip']) || isset($_POST['log']) && check_admin_referer('check_admin_referer')) {
         update_option('first', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'first', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         @update_option('msg', $_POST['msg']);
@@ -120,8 +115,7 @@ function menu_block_wpscan()
 
     <h1>block-wpscan</h1>
     <hr>
-    
-    <div><?php echo $out ?></div>
+    <div id="chart_div"></div>
 
     <ul class="nav nav-tabs">
         <li class="active"><a href="#tab1" data-toggle="tab">Setting</a></li>
