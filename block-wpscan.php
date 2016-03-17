@@ -38,6 +38,24 @@ add_action('admin_menu', 'admin_block_wpscan');
 add_action('admin_enqueue_scripts', 'register_frontend');
 add_action('init', 'block_wpscan');
 
+require 'assets/jpgraph/vendor/autoload.php';
+
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
+
+$data = array(40, 21, 17, 14, 23);
+$p1 = new Plot\PiePlot($data);
+$p1->ShowBorder();
+$p1->SetColor('black');
+$p1->SetSliceColors(array('#1E90FF', '#2E8B57', '#ADFF2F', '#DC143C', '#BA55D3'));
+
+$graph = new Graph\PieGraph(350, 250);
+$graph->title->Set("A Simple Pie Plot");
+$graph->SetBox(true);
+
+$graph->Add($p1);
+$graph->Stroke();
+
 /**
  * jQuery, bootstrap の読み込み
  */
@@ -87,6 +105,27 @@ function menu_block_wpscan()
     $tor = get_option('tor');
     $ip = get_option('ip');
     $log = get_option('log');
+
+    $data1y = array(-8, 8, 9, 3, 5, 6);
+    $data2y = array(18, 2, 1, 7, 5, 4);
+
+    $graph = new Graph(250, 200, "auto");
+    $graph->SetScale("textlin");
+
+    $graph->img->SetMargin(40, 30, 20, 40);
+
+    $b1plot = new BarPlot($data1y);
+    $b1plot->SetFillColor("orange");
+    $b1plot->value->Show();
+    $b2plot = new BarPlot($data2y);
+    $b2plot->SetFillColor("blue");
+    $b2plot->value->Show();
+
+    $gbplot = new AccBarPlot(array($b1plot, $b2plot));
+
+    $graph->Add($gbplot);
+
+    $graph->Stroke();
 
     /* Delete Block list */
     if (isset($_POST['delete'])) {
