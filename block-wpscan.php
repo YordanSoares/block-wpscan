@@ -38,24 +38,6 @@ add_action('admin_menu', 'admin_block_wpscan');
 add_action('admin_enqueue_scripts', 'register_frontend');
 add_action('init', 'block_wpscan');
 
-require 'assets/jpgraph/vendor/autoload.php';
-
-use Amenadiel\JpGraph\Graph;
-use Amenadiel\JpGraph\Plot;
-
-$data = array(40, 21, 17, 14, 23);
-$p1 = new Plot\PiePlot($data);
-$p1->ShowBorder();
-$p1->SetColor('black');
-$p1->SetSliceColors(array('#1E90FF', '#2E8B57', '#ADFF2F', '#DC143C', '#BA55D3'));
-
-$graph = new Graph\PieGraph(350, 250);
-$graph->title->Set("A Simple Pie Plot");
-$graph->SetBox(true);
-
-$graph->Add($p1);
-$graph->Stroke();
-
 /**
  * jQuery, bootstrap の読み込み
  */
@@ -89,6 +71,17 @@ function admin_block_wpscan()
  */
 function menu_block_wpscan()
 {
+    include plugin_dir_url(__FILE__) . 'assets/charts4php/lib/inc/chartphp_dist.php';
+
+    $p = new chartphp();
+
+// set few params
+    $p->data = array(array(3, 7, 9, 1, 4, 6, 8, 2, 5), array(5, 3, 8, 2, 6, 2, 9, 2, 6));
+    $p->chart_type = "area";
+
+// render chart and get html/js output
+    $out = $p->render('c1');
+
     if (isset($_POST['msg']) || isset($_POST['proxy']) || isset($_POST['tor']) || isset($_POST['ip']) || isset($_POST['log']) && check_admin_referer('check_admin_referer')) {
         update_option('first', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'first', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         @update_option('msg', $_POST['msg']);
@@ -105,27 +98,6 @@ function menu_block_wpscan()
     $tor = get_option('tor');
     $ip = get_option('ip');
     $log = get_option('log');
-
-    $data1y = array(-8, 8, 9, 3, 5, 6);
-    $data2y = array(18, 2, 1, 7, 5, 4);
-
-    $graph = new Graph(250, 200, "auto");
-    $graph->SetScale("textlin");
-
-    $graph->img->SetMargin(40, 30, 20, 40);
-
-    $b1plot = new BarPlot($data1y);
-    $b1plot->SetFillColor("orange");
-    $b1plot->value->Show();
-    $b2plot = new BarPlot($data2y);
-    $b2plot->SetFillColor("blue");
-    $b2plot->value->Show();
-
-    $gbplot = new AccBarPlot(array($b1plot, $b2plot));
-
-    $graph->Add($gbplot);
-
-    $graph->Stroke();
 
     /* Delete Block list */
     if (isset($_POST['delete'])) {
@@ -148,6 +120,9 @@ function menu_block_wpscan()
 
     <h1>block-wpscan</h1>
     <hr>
+    
+    <div><?php echo $out ?></div>
+
     <ul class="nav nav-tabs">
         <li class="active"><a href="#tab1" data-toggle="tab">Setting</a></li>
         <li><a href="#tab2" data-toggle="tab">Log</a></li>
@@ -272,7 +247,8 @@ function menu_block_wpscan()
                         <h3>block-wpscan</h3>
                         <p>This plugin block Tor, Proxy, Command Line access and wpscan.<br>
                             But it can't block all unauthorized access.<br>
-                            Tor is judged by API Server. If Tor's node isn't registration of API Server's node list, It can't block Tor access.<br>
+                            Tor is judged by API Server. If Tor's node isn't registration of API Server's node list, It
+                            can't block Tor access.<br>
                             About 80% can block.<br>
                             <br>
                             * Exception IPs.<br>
