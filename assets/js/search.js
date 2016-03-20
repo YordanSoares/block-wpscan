@@ -1,0 +1,3 @@
+$("#tabledata").searcher({
+    inputSelector: "#tablesearchinput"
+});

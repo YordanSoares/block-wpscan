@@ -50,7 +50,8 @@ function register_frontend($hook_suffix)
         wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
         wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
         wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), NULL, false);
-        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.searcher.js', array('jquery'), NULL, false);
+        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.searcher.js', array('jquery'), NULL, true);
+        wp_enqueue_script('search.js', plugin_dir_url(__FILE__) . 'assets/js/search.js', array('quick.js'), NULL, true);
     }
 }
 
@@ -256,6 +257,7 @@ function menu_block_wpscan()
 
             <!-- START Log PAGE -->
             <div class="tab-pane" id="tab2">
+                <input id="tablesearchinput">
                 <form action="" method="post">
                     <h3>Blocked list <span class="small"></h3>
                     <span class="text-info">Blocked:</span><?php echo count(toGetLog()); ?>
@@ -263,12 +265,11 @@ function menu_block_wpscan()
                         class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
                     Mbytes <span
                         class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
-                    <span><input type="text" name="search" value="" id="id_search" /></span>
                     <!-- DELETE FUNCTION
                     <span><input type="submit" class="btn btn-danger" name="delete" value="Delete"></span>
                     -->
                 </form>
-                <table class="table table-responsive table_example">
+                <table id="tabledata" class="table table-responsive">
                     <thead>
                     <tr>
                         <th>#</th>
