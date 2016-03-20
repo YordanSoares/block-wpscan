@@ -433,3 +433,7 @@ jQuery(function () {
 
     }(window.jQuery, this, document));
 });
+
+jQuery(function () {
+    jQuery('input#id_search').quicksearch('table tbody tr');
+});

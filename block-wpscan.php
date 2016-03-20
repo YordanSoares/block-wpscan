@@ -53,7 +53,7 @@ function register_frontend($hook_suffix)
         wp_enqueue_style('jquery-ui.css', 'https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css');
         wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
         wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), NULL, false);
-        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.quicksearch.js', array('jquery'), NULL, false);
+        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.quickserach.js', array('jquery'), NULL, false);
     }
 }
 
@@ -279,7 +279,7 @@ function menu_block_wpscan()
                         <th>Date</th>
                     </tr>
                     </thead>
-                    <tbody id="log">
+                    <tbody>
                     <?php foreach (toGetLog() as $row) {
                         echo $row;
                     } ?>

@@ -11,7 +11,3 @@ jQuery(function () {
         }
     });
 });
-
-jQuery(function () {
-    jQuery('input#id_search').quicksearch('table tbody tr');
-});
