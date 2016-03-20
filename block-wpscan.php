@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.3.1
+Version: 0.3.3
 Author URI: https://luispc.com/
 */
 
@@ -31,7 +31,7 @@ Author URI: https://luispc.com/
 
 /* Block direct access */
 if (!defined('ABSPATH')) {
-    die('Direct acces not allowed!');
+    die('Direct access not allowed!');
 }
 
 add_action('admin_menu', 'admin_block_wpscan');
@@ -39,7 +39,8 @@ add_action('admin_enqueue_scripts', 'register_frontend');
 add_action('init', 'block_wpscan');
 
 /**
- * jQuery, bootstrap の読み込み
+ * スクリプト、スタイルシートの読み込み
+ * Wordpress標準の jquery を使わずにCDNから読み込む
  */
 function register_frontend($hook_suffix)
 {
@@ -49,11 +50,10 @@ function register_frontend($hook_suffix)
         wp_enqueue_script('jquery', 'https://code.jquery.com/jquery-2.2.1.min.js');
         wp_enqueue_script('jquery-ui', 'https://code.jquery.com/ui/1.11.2/jquery-ui.min.js');
         wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
-        wp_enqueue_script('googlecharts_loader.js', 'https://www.gstatic.com/charts/loader.js');
-        wp_enqueue_script('googlecharts.js', plugin_dir_url(__FILE__) . 'assets/js/googlecharts.js');
         wp_enqueue_style('jquery-ui.css', 'https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css');
         wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
         wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), NULL, false);
+        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.quicksearch.js', array('jquery'), NULL, false);
     }
 }
 
@@ -84,7 +84,7 @@ function menu_block_wpscan()
         update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('tor', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         update_option('ip', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'ip', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
-        update_option('log', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('log', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'log', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
     }
 
     $msg = get_option('msg');
@@ -99,24 +99,19 @@ function menu_block_wpscan()
         unlink(plugin_dir_path(__FILE__) . 'block.list');
     }
 
-    /* APIサーバーからのメッセージ受信 */
-    function toGetInfo()
-    {
-        $url = 'https://c.xzy.pw/judgementAPI-for-Tor/message.php';
-        $options = array(
-            'http' => array(
-                'method' => 'POST'
-            ),
-        );
-        $context = stream_context_create($options);
-        $result = json_decode(file_get_contents($url, false, $context));
-        return $result;
+    /* Search log */
+    if (isset($_POST['search'])) {
+        foreach (toCreateArray() as $row) {
+            if ($row['ip'] == filter_input(INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS) || $row['host'] == filter_input(INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS) || $row['ua'] == filter_input(INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS)) {
+                echo "見つけた";
+            } else {
+                echo "見つからない";
+            }
+        }
     } ?>
 
     <h1>block-wpscan</h1>
     <hr>
-    <div id="chart_div"></div>
-
     <ul class="nav nav-tabs">
         <li class="active"><a href="#tab1" data-toggle="tab">Setting</a></li>
         <li><a href="#tab2" data-toggle="tab">Log</a></li>
@@ -265,14 +260,15 @@ function menu_block_wpscan()
             <!-- START Log PAGE -->
             <div class="tab-pane" id="tab2">
                 <form action="" method="post">
-                    <h3>Blocked list <span class="small"><span
-                                class="text-info">Blocked:</span><?php echo count(toGetLog()); ?>
-                            <span
-                                class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
-                            Mbytes <span
-                                class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
-                        <span><input type="submit" class="btn btn-danger" name="delete" value="Delete"></span>
-                    </h3>
+                    <h3>Blocked list <span class="small"></h3>
+                    <span class="text-info">Blocked:</span><?php echo count(toGetLog()); ?>
+                    <span
+                        class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
+                    Mbytes <span
+                        class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
+                    <span><input type="text" name="search" placeholder="Example: 1.1.1.1"></span>
+                    <span><input type="submit" class="btn btn-success" value="Search"></span>
+                    <span><input type="submit" class="btn btn-danger" name="delete" value="Delete"></span>
                 </form>
                 <table class="table table-responsive">
                     <thead>
@@ -284,7 +280,7 @@ function menu_block_wpscan()
                         <th>Date</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="log">
                     <?php foreach (toGetLog() as $row) {
                         echo $row;
                     } ?>
@@ -296,16 +292,54 @@ function menu_block_wpscan()
 <?php }
 
 /**
+ * APIサーバーからメッセージを受信する。
+ *
+ * @return mixed APIサーバーから受信したメッセージ
+ */
+function toGetInfo()
+{
+    $url = 'https://c.xzy.pw/judgementAPI-for-Tor/message.php';
+    $options = array(
+        'http' => array(
+            'method' => 'POST'
+        ),
+    );
+    $context = stream_context_create($options);
+    $result = json_decode(file_get_contents($url, false, $context));
+    return $result;
+}
+
+/**
  * ログを保存する。
  * 保存先は wp-content
  *
  * @param $ip IPアドレス
  * @param $host ホストネーム
+ * @param $ua ユーザーエージェント
  * @param $date 日付
  */
 function toSetLog($ip, $host, $ua, $date)
 {
     file_put_contents(plugin_dir_path(__FILE__) . 'block.list', "${ip}|${host}|${ua}|${date}\r\n", FILE_APPEND | LOCK_EX);
+}
+
+/**
+ * ログファイルから連想配列化
+ *
+ * @return array ログファイルから多次元配列を返す
+ */
+function toCreateArray()
+{
+    $b = 1;
+
+    if ($file = array_reverse(file(plugin_dir_path(__FILE__) . 'block.list'))) {
+        foreach ($file as $row) {
+            $a = explode("|", $row);
+            $array[] = array('count' => $b, 'ip' => $a[0], 'host' => $a[1], 'ua' => $a[2], 'date' => $a[3]);
+            $b++;
+        }
+    }
+    return $array;
 }
 
 /**
@@ -315,28 +349,18 @@ function toSetLog($ip, $host, $ua, $date)
  */
 function toGetLog()
 {
-    $b = 1;
-
-    if ($file = array_reverse(file(plugin_dir_path(__FILE__) . 'block.list'))) {
-        foreach ($file as $row) {
-            $a = explode("|", $row);
-            $ip = $a[0];
-            $hostname = $a[1];
-            $ua = $a[2];
-            $date = $a[3];
-
+    if (is_array(toCreateArray()) === true) {
+        foreach (toCreateArray() as $row) {
             $array[] = "<tr>
-                  <td>${b}</td>
-                  <td>${ip}</td>
-                  <td>${hostname}</td>
-                  <td>${ua}</td>
-                  <td>${date}</td>
+                  <td>${row['count']}</td>
+                  <td>${row['ip']}</td>
+                  <td>${row['host']}</td>
+                  <td>${row['ua']}</td>
+                  <td>${row['date']}</td>
                   </tr>";
-
-            $b++;
         }
     } else {
-        echo "No data yet. or your setting is off.";
+        echo "No data yet. or Log function setting is off";
     }
     return $array;
 }

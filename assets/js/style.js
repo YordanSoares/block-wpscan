@@ -5,7 +5,7 @@ jQuery(function () {
             jQuery('textarea[name=msg]').show();
             jQuery('input[name=redirect]').hide();
         }
-        if(selected == 'redirect'){
+        if (selected == 'redirect') {
             jQuery('input[name=redirect]').show();
             jQuery('textarea[name=msg]').hide();
         }
