@@ -266,11 +266,10 @@ function menu_block_wpscan()
                         class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
                     Mbytes <span
                         class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
-                    <span><input type="text" name="search" placeholder="Example: 1.1.1.1"></span>
-                    <span><input type="submit" class="btn btn-success" value="Search"></span>
+                    <span><input type="text" name="search" value="" id="id_search" /></span>
                     <span><input type="submit" class="btn btn-danger" name="delete" value="Delete"></span>
                 </form>
-                <table class="table table-responsive">
+                <table class="table table-responsive table_example">
                     <thead>
                     <tr>
                         <th>#</th>
