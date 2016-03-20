@@ -46,14 +46,11 @@ function register_frontend($hook_suffix)
 {
     if ($hook_suffix == 'toplevel_page_block-wpscan') {
         wp_deregister_script('jquery');
-        wp_deregister_script('jquery-ui');
         wp_enqueue_script('jquery', 'https://code.jquery.com/jquery-2.2.1.min.js');
-        wp_enqueue_script('jquery-ui', 'https://code.jquery.com/ui/1.11.2/jquery-ui.min.js');
         wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
-        wp_enqueue_style('jquery-ui.css', 'https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css');
         wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
         wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), NULL, false);
-        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.quickserach.js', array('jquery'), NULL, false);
+        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.searcher.js', array('jquery'), NULL, false);
     }
 }
 
@@ -267,7 +264,9 @@ function menu_block_wpscan()
                     Mbytes <span
                         class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
                     <span><input type="text" name="search" value="" id="id_search" /></span>
+                    <!-- DELETE FUNCTION
                     <span><input type="submit" class="btn btn-danger" name="delete" value="Delete"></span>
+                    -->
                 </form>
                 <table class="table table-responsive table_example">
                     <thead>
