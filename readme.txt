@@ -34,7 +34,6 @@ Link http://www.domaintools.com/<IP address> on Log function.
 = 0.4.3 =
 * Add Exception access to /rss, /feed.
 
-
 = 0.4.2 =
 * Add Exception access from twitter-bot.
 * Add Judgement result on Log function.
