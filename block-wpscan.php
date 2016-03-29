@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.3.3
+Version: 0.4.2
 Author URI: https://luispc.com/
 */
 
@@ -29,10 +29,17 @@ Author URI: https://luispc.com/
     Github  : https://github.com/rluisr/block-wpscan
 */
 
+/*  Using jquery-searcher for search on Log function
+    License is MIT. https://github.com/lloiser/jquery-searcher/blob/master/LICENSE
+
+    This plugin calls c.xyz.pw to detect if a user is on a Tor →　https://c.xzy.pw/judgementAPI-for-Tor/index.html
+    Link whois(http://www.domaintools.com/) on Log function.
+*/
+
+date_default_timezone_get();
+
 /* Block direct access */
-if (!defined('ABSPATH')) {
-    die('Direct access not allowed!');
-}
+if (!defined('ABSPATH')) die('Direct access not allowed!');
 
 add_action('admin_menu', 'admin_block_wpscan');
 add_action('admin_enqueue_scripts', 'register_frontend');
@@ -60,14 +67,7 @@ function register_frontend($hook_suffix)
  */
 function admin_block_wpscan()
 {
-    add_menu_page(
-        'block-wpscan', //サイトタイトル的なやつ
-        'block-wpscan', //管理画面に表示されるやつ
-        'administrator',
-        'block-wpscan',
-        'menu_block_wpscan',
-        plugin_dir_url(__FILE__) . 'assets/images/icon.png'
-    );
+    add_menu_page('block-wpscan', 'block-wpscan', 'administrator', 'block-wpscan', 'menu_block_wpscan', plugin_dir_url(__FILE__) . 'assets/images/icon.png');
 }
 
 /**
@@ -93,20 +93,7 @@ function menu_block_wpscan()
     $log = get_option('log');
 
     /* Delete Block list */
-    if (isset($_POST['delete'])) {
-        unlink(plugin_dir_path(__FILE__) . 'block.list');
-    }
-
-    /* Search log */
-    if (isset($_POST['search'])) {
-        foreach (toCreateArray() as $row) {
-            if ($row['ip'] == filter_input(INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS) || $row['host'] == filter_input(INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS) || $row['ua'] == filter_input(INPUT_POST, 'search', FILTER_SANITIZE_SPECIAL_CHARS)) {
-                echo "見つけた";
-            } else {
-                echo "見つからない";
-            }
-        }
-    } ?>
+    if (isset($_POST['delete'])) unlink(WP_CONTENT_DIR . '/block-wpscan/block.list'); ?>
 
     <h1>block-wpscan</h1>
     <hr>
@@ -176,12 +163,10 @@ function menu_block_wpscan()
                                 <h3>Block Tor ON / OFF</h3>
                                 <h5>If you check ON, It takes a bit of a while load time. Please test.</h5>
                                 <label class="radio-inline">
-                                    <?php echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" :
-                                        "<input type=\"radio\" name=\"tor\" value=\"ON\">ON"; ?>
+                                    <?php echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON"; ?>
                                 </label>
                                 <label class="radio-inline">
-                                    <?php echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" :
-                                        "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF"; ?>
+                                    <?php echo $tor == "OFF" ? "<input type=\"radio\" name=\"tor\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"tor\" value=\"OFF\">OFF"; ?>
                                 </label>
                             </div>
 
@@ -203,12 +188,10 @@ function menu_block_wpscan()
                                 <h3>Log fnction</h3>
                                 <h5>If you check on, It takes a bit of a while load time. Please test.</h5>
                                 <label class="radio-inline">
-                                    <?php echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" :
-                                        "<input type=\"radio\" name=\"log\" value=\"ON\">ON"; ?>
+                                    <?php echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"log\" value=\"ON\">ON"; ?>
                                 </label>
                                 <label class="radio-inline">
-                                    <?php echo $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" :
-                                        "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF"; ?>
+                                    <?php echo $log == "OFF" ? "<input type=\"radio\" name=\"log\" value=\"OFF\" checked>OFF" : "<input type=\"radio\" name=\"log\" value=\"OFF\">OFF"; ?>
                                 </label>
                             </div>
 
@@ -257,26 +240,27 @@ function menu_block_wpscan()
 
             <!-- START Log PAGE -->
             <div class="tab-pane" id="tab2">
-                <input id="tablesearchinput">
                 <form action="" method="post">
-                    <h3>Blocked list <span class="small"></h3>
-                    <span class="text-info">Blocked:</span><?php echo count(toGetLog()); ?>
+                    <h3>Blocked list<span style="padding:20px;"><input class="small" id="tablesearchinput"
+                                                                       placeholder="Search Here"></span><span><input
+                                type="submit" class="btn btn-danger" name="delete" value="Delete"></span></h3>
+                    <span class="text-info"><strong>Blocked:</strong></span><?php echo count(toGetLog()); ?>
                     <span
-                        class="text-info">filesize:</span><?php echo filesize(plugin_dir_path(__FILE__) . 'block.list') / 1024 / 1024 ?>
-                    Mbytes <span
-                        class="text-info">Path:</span><?php echo plugin_dir_path(__FILE__) . 'block.list' ?></span>
-                    <!-- DELETE FUNCTION
-                    <span><input type="submit" class="btn btn-danger" name="delete" value="Delete"></span>
-                    -->
+                        class="text-info"><strong>filesize:</strong></span><?php echo size_format(filesize(WP_CONTENT_DIR . '/block-wpscan/block.list'), 1) ?>
+                    <span
+                        class="text-info"><strong>Path:</strong></span><?php echo WP_CONTENT_DIR . '/block-wpscan/block.list' ?></span>
                 </form>
                 <table id="tabledata" class="table table-responsive">
                     <thead>
                     <tr>
                         <th>#</th>
+                        <th>Judge</th>
                         <th>IP address</th>
                         <th>Hostname</th>
                         <th>UserAgent(UA can camouflage. You shouldn't trust it.)</th>
+                        <th>Request URI</th>
                         <th>Date</th>
+                        <th>Whois</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -298,11 +282,7 @@ function menu_block_wpscan()
 function toGetInfo()
 {
     $url = 'https://c.xzy.pw/judgementAPI-for-Tor/message.php';
-    $options = array(
-        'http' => array(
-            'method' => 'POST'
-        ),
-    );
+    $options = array('http' => array('method' => 'POST'),);
     $context = stream_context_create($options);
     $result = json_decode(file_get_contents($url, false, $context));
     return $result;
@@ -317,9 +297,14 @@ function toGetInfo()
  * @param $ua ユーザーエージェント
  * @param $date 日付
  */
-function toSetLog($ip, $host, $ua, $date)
+function toSetLog($judgement, $ip, $host, $ua, $request_url, $date, $whois)
 {
-    file_put_contents(plugin_dir_path(__FILE__) . 'block.list', "${ip}|${host}|${ua}|${date}\r\n", FILE_APPEND | LOCK_EX);
+    if (file_exists(WP_CONTENT_DIR . '/block-wpscan')) {
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/block.list', "${judgement}|${ip}|${host}|${ua}|${request_url}|${date}|${whois}\r\n", FILE_APPEND | LOCK_EX);
+    } else {
+        mkdir(WP_CONTENT_DIR . '/block-wpscan');
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/block.list', "${judgement}|${ip}|${host}|${ua}|${request_url}|${date}|${whois}\r\n", FILE_APPEND | LOCK_EX);
+    }
 }
 
 /**
@@ -331,10 +316,10 @@ function toCreateArray()
 {
     $b = 1;
 
-    if ($file = array_reverse(file(plugin_dir_path(__FILE__) . 'block.list'))) {
+    if ($file = array_reverse(file(WP_CONTENT_DIR . '/block-wpscan/block.list'))) {
         foreach ($file as $row) {
             $a = explode("|", $row);
-            $array[] = array('count' => $b, 'ip' => $a[0], 'host' => $a[1], 'ua' => $a[2], 'date' => $a[3]);
+            $array[] = array('count' => $b, 'judgement' => $a[0], 'ip' => $a[1], 'host' => $a[2], 'ua' => $a[3], 'request_url' => $a[4], 'date' => $a[5], 'whois' => $a[6]);
             $b++;
         }
     }
@@ -352,10 +337,13 @@ function toGetLog()
         foreach (toCreateArray() as $row) {
             $array[] = "<tr>
                   <td>${row['count']}</td>
+                  <td>${row['judgement']}</td>
                   <td>${row['ip']}</td>
                   <td>${row['host']}</td>
                   <td>${row['ua']}</td>
+                  <td>${row['request_url']}</td>
                   <td>${row['date']}</td>
+                  <td><a href=\"${row['whois']}\" target=\"_blank\">Whois</td>
                   </tr>";
         }
     } else {
@@ -379,17 +367,8 @@ function block_wpscan()
     if (get_option('tor') == "ON") {
         $url = 'https://c.xzy.pw/judgementAPI-for-Tor/api.php';
         $ip = $_SERVER['REMOTE_ADDR'];
-
-        $data = array(
-            "ip" => $ip
-        );
-
-        $options = array(
-            'http' => array(
-                'method' => 'POST',
-                'content' => http_build_query($data),
-            ),
-        );
+        $data = array("ip" => $ip);
+        $options = array('http' => array('method' => 'POST', 'content' => http_build_query($data),),);
         $context = stream_context_create($options);
         $result = json_decode(file_get_contents($url, false, $context));
         $tor_result = $result === null ? 1 : $result->result;
@@ -417,21 +396,24 @@ function block_wpscan()
         $languages = array_reverse($languages);
 
         foreach ($languages as $language) {
-            if (preg_match('/^ja/i', $language)) {
-                $browser_result = 1;
-            } elseif (preg_match('/^en/i', $language)) {
-                $browser_result = 1;
-            } else {
-                $browser_result = 0;
-            }
+            if (preg_match('/^ja/i', $language)) $browser_result = 1;
+            elseif (preg_match('/^en/i', $language)) $browser_result = 1;
+            else $browser_result = 0;
         }
+    } else $browser_result = 0;
 
-    } else {
-        $browser_result = 0;
+    /* Exception /feed & /rss access */
+    $e = array("feed", "rss");
+    foreach ($e as $row) {
+        if (strpos(filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_SPECIAL_CHARS), $row) !== false) {
+            $request_result = 1;
+            break;
+        } else {
+            $request_result = 0;
+        }
     }
-
-    /* Googlebot, msnbot */
-    $bot = array("google", "msn", "yahoo", "bing", "hatena");
+    /* BOT */
+    $bot = array("google", "msn", "yahoo", "bing", "hatena", "data-hotel", "twttr.com");
     $host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
     foreach ($bot as $row) {
         if (strpos($host, $row) !== false) {
@@ -444,14 +426,10 @@ function block_wpscan()
 
     /* UserAgent */
     if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
-        if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) {
-            $ua_result = 0;
-        } else {
-            $ua_result = 1;
-        }
-    } else {
-        $ua_result = 0;
-    }
+        if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) $ua_result = 0;
+        else $ua_result = 1;
+    } else $ua_result = 0;
+
 
     /* Header - Proxy */
     if (get_option('proxy') == "ON") {
@@ -459,19 +437,24 @@ function block_wpscan()
         $proxy_result2 = isset($_SERVER['HTTP_CLIENT_IP']) ? 0 : 1;
     }
 
+    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) $result = 0;
 
-    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) {
-        $result = 0;
-    }
-    if ($bot_result === 1 || $exception_result === 1) {
-        $result = 1;
-    }
+    if ($bot_result === 1 || $exception_result === 1 || $request_result === 1) $result = 1;
 
     //echo "Result: $result\r\nIP: $ip\r\nHOST: $host\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA:$ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result\r\nREMOTE_ADDR:{$_SERVER['REMOTE_ADDR']}\r\nSERVER_ADDR: {$_SERVER['SERVER_ADDR']}";
 
     if ($result === 0) {
         if (get_option('log') == "ON") {
-            toSetLog($_SERVER['REMOTE_ADDR'], gethostbyaddr($_SERVER['REMOTE_ADDR']), filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS), date("Y-m-d H:i"));
+            if ($browser_result === 0) {
+                $a = "Not Browser Access";
+            } elseif ($ua_result === 0) {
+                $a = "Corrupt UserAgent";
+            } elseif ($proxy_result1 === 0 || $proxy_result2 === 0) {
+                $a = "Proxy Access";
+            } elseif ($tor_result === 0) {
+                $a = "Tor Access";
+            }
+            toSetLog($a, $_SERVER['REMOTE_ADDR'], gethostbyaddr($_SERVER['REMOTE_ADDR']), filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS), filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_SPECIAL_CHARS), date("Y-m-d H:i"), "http://whois.domaintools.com/{$_SERVER['REMOTE_ADDR']}");
         }
         if (get_option('first') == "msg") {
             header("HTTP / 1.0 406 Not Acceptable");
@@ -481,7 +464,3 @@ function block_wpscan()
         }
     }
 }
-
-/*
-* 0.3.1はHTMLの表示、リダイレクトの機能
-*/

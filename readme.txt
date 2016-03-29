@@ -1,10 +1,10 @@
 === block-wpscan ===
 Contributors: rluisr
 Donate link: https://luispc.com/
-Tags: wpscan, proxy, tor, block
+Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
 Tested up to: 4.4.2
-Stable tag: 0.3.3
+Stable tag: 0.4.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,6 +15,7 @@ Block wpscan, proxy and tor access.
 Block wpscan, proxy and tor access.
 This plugin calls c.xyz.pw to detect if a user is on a Tor →　https://c.xzy.pw/judgementAPI-for-Tor/index.html
 And https://maxcdn.bootstrapcdn.com/bootstrap for UI.
+Link http://www.domaintools.com/<IP address> on Log function.
 
 == Installation ==
 
@@ -30,8 +31,16 @@ And https://maxcdn.bootstrapcdn.com/bootstrap for UI.
 
 == Changelog ==
 
-= 0.3.3 =
+= 0.4.2 =
+* Add Exception access from twitter-bot.
+* Add Judgement result on Log function.
+
+= 0.4.1 =
 * Add Search function on Log function.
+* Add Request_url on Log function.
+* Add Link whois(http://www.domaintools.com/) on Log function.
+* Add Exception livedoor(crawler) access.
+* Modify Display file size on Log function.
 
 = 0.3.2 =
 * Fix When you check ON log function, Don't reflect it.
