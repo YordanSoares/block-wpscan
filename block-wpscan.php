@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.4.3
+Version: 0.4.4
 Author URI: https://luispc.com/
 */
 
@@ -39,7 +39,9 @@ Author URI: https://luispc.com/
 date_default_timezone_get();
 
 /* Block direct access */
-if (!defined('ABSPATH')) die('Direct access not allowed!');
+if (!defined('ABSPATH')) {
+    die('Direct access not allowed!');
+}
 
 add_action('admin_menu', 'admin_block_wpscan');
 add_action('admin_enqueue_scripts', 'register_frontend');
@@ -54,11 +56,13 @@ function register_frontend($hook_suffix)
     if ($hook_suffix == 'toplevel_page_block-wpscan') {
         wp_deregister_script('jquery');
         wp_enqueue_script('jquery', 'https://code.jquery.com/jquery-2.2.1.min.js');
-        wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array(), NULL, false);
+        wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+            array(), null, false);
         wp_enqueue_style('bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
-        wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), NULL, false);
-        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.searcher.js', array('jquery'), NULL, true);
-        wp_enqueue_script('search.js', plugin_dir_url(__FILE__) . 'assets/js/search.js', array('quick.js'), NULL, true);
+        wp_enqueue_script('bw.js', plugin_dir_url(__FILE__) . 'assets/js/style.js', array('jquery'), null, false);
+        wp_enqueue_script('quick.js', plugin_dir_url(__FILE__) . 'assets/js/jquery.searcher.js', array('jquery'), null,
+            true);
+        wp_enqueue_script('search.js', plugin_dir_url(__FILE__) . 'assets/js/search.js', array('quick.js'), null, true);
     }
 }
 
@@ -67,7 +71,8 @@ function register_frontend($hook_suffix)
  */
 function admin_block_wpscan()
 {
-    add_menu_page('block-wpscan', 'block-wpscan', 'administrator', 'block-wpscan', 'menu_block_wpscan', plugin_dir_url(__FILE__) . 'assets/images/icon.png');
+    add_menu_page('block-wpscan', 'block-wpscan', 'administrator', 'block-wpscan', 'menu_block_wpscan',
+        plugin_dir_url(__FILE__) . 'assets/images/icon.png');
 }
 
 /**
@@ -76,13 +81,18 @@ function admin_block_wpscan()
 function menu_block_wpscan()
 {
     if (isset($_POST['msg']) || isset($_POST['proxy']) || isset($_POST['tor']) || isset($_POST['ip']) || isset($_POST['log']) && check_admin_referer('check_admin_referer')) {
-        update_option('first', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'first', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('first',
+            esc_html(htmlspecialchars(filter_input(INPUT_POST, 'first', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
         @update_option('msg', $_POST['msg']);
         @update_option('redirect', esc_html(filter_input(INPUT_POST, 'redirect', FILTER_VALIDATE_URL)));
-        update_option('proxy', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
-        update_option('tor', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
-        update_option('ip', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'ip', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
-        update_option('log', esc_html(htmlspecialchars(filter_input(INPUT_POST, 'log', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('proxy',
+            esc_html(htmlspecialchars(filter_input(INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('tor',
+            esc_html(htmlspecialchars(filter_input(INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('ip',
+            esc_html(htmlspecialchars(filter_input(INPUT_POST, 'ip', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
+        update_option('log',
+            esc_html(htmlspecialchars(filter_input(INPUT_POST, 'log', FILTER_SANITIZE_SPECIAL_CHARS), ENT_QUOTES)));
     }
 
     $msg = get_option('msg');
@@ -93,7 +103,9 @@ function menu_block_wpscan()
     $log = get_option('log');
 
     /* Delete Block list */
-    if (isset($_POST['delete'])) unlink(WP_CONTENT_DIR . '/block-wpscan/block.list'); ?>
+    if (isset($_POST['delete'])) {
+        unlink(WP_CONTENT_DIR . '/block-wpscan/block.list');
+    } ?>
 
     <h1>block-wpscan</h1>
     <hr>
@@ -246,7 +258,8 @@ function menu_block_wpscan()
                                 type="submit" class="btn btn-danger" name="delete" value="Delete"></span></h3>
                     <span class="text-info"><strong>Blocked:</strong></span><?php echo count(toGetLog()); ?>
                     <span
-                        class="text-info"><strong>filesize:</strong></span><?php echo size_format(filesize(WP_CONTENT_DIR . '/block-wpscan/block.list'), 1) ?>
+                        class="text-info"><strong>filesize:</strong></span><?php echo size_format(filesize(WP_CONTENT_DIR . '/block-wpscan/block.list'),
+                        1) ?>
                     <span
                         class="text-info"><strong>Path:</strong></span><?php echo WP_CONTENT_DIR . '/block-wpscan/block.list' ?></span>
                 </form>
@@ -300,10 +313,12 @@ function toGetInfo()
 function toSetLog($judgement, $ip, $host, $ua, $request_url, $date, $whois)
 {
     if (file_exists(WP_CONTENT_DIR . '/block-wpscan')) {
-        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/block.list', "${judgement}|${ip}|${host}|${ua}|${request_url}|${date}|${whois}\r\n", FILE_APPEND | LOCK_EX);
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/block.list',
+            "${judgement}|${ip}|${host}|${ua}|${request_url}|${date}|${whois}\r\n", FILE_APPEND | LOCK_EX);
     } else {
         mkdir(WP_CONTENT_DIR . '/block-wpscan');
-        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/block.list', "${judgement}|${ip}|${host}|${ua}|${request_url}|${date}|${whois}\r\n", FILE_APPEND | LOCK_EX);
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/block.list',
+            "${judgement}|${ip}|${host}|${ua}|${request_url}|${date}|${whois}\r\n", FILE_APPEND | LOCK_EX);
     }
 }
 
@@ -319,7 +334,16 @@ function toCreateArray()
     if ($file = array_reverse(file(WP_CONTENT_DIR . '/block-wpscan/block.list'))) {
         foreach ($file as $row) {
             $a = explode("|", $row);
-            $array[] = array('count' => $b, 'judgement' => $a[0], 'ip' => $a[1], 'host' => $a[2], 'ua' => $a[3], 'request_url' => $a[4], 'date' => $a[5], 'whois' => $a[6]);
+            $array[] = array(
+                'count' => $b,
+                'judgement' => $a[0],
+                'ip' => $a[1],
+                'host' => $a[2],
+                'ua' => $a[3],
+                'request_url' => $a[4],
+                'date' => $a[5],
+                'whois' => $a[6]
+            );
             $b++;
         }
     }
@@ -361,31 +385,28 @@ function block_wpscan()
      * 0 : reject
      * 1 : accept
      */
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
     $result = 1;
 
-    /* IP - Tor */
+    /* IP + HOST - Tor */
     if (get_option('tor') == "ON") {
-        $url = 'https://c.xzy.pw/judgementAPI-for-Tor/api.php';
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $data = array("ip" => $ip);
-        $options = array('http' => array('method' => 'POST', 'content' => http_build_query($data),),);
-        $context = stream_context_create($options);
-        $result = json_decode(file_get_contents($url, false, $context));
-        $tor_result = $result === null ? 1 : $result->result;
+        $file = file_get_contents('tornodelist');
+        if (strpos($file, $ip) !== false || strpos('tor', $host) !== false) {
+            $tor_result = 0;
+        }
     }
 
     /* Exception IP */
-    $exception_result = $_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR'] ? 1 : 0;
+    $exception_result = $ip === $_SERVER['SERVER_ADDR'] ? 1 : 0;
     if (get_option('ip') || $exception_result === 0) {
         $exception_ip = explode(",", get_option('ip'));
         $exception_ip[] = "127.0.0.1"; // for reverse proxy
 
         foreach ($exception_ip as $row) {
-            if ($row == $_SERVER['REMOTE_ADDR']) {
+            if ($row == $ip) {
                 $exception_result = 1;
                 break;
-            } else {
-                $exception_result = 0;
             }
         }
     }
@@ -396,11 +417,13 @@ function block_wpscan()
         $languages = array_reverse($languages);
 
         foreach ($languages as $language) {
-            if (preg_match('/^ja/i', $language)) $browser_result = 1;
-            elseif (preg_match('/^en/i', $language)) $browser_result = 1;
-            else $browser_result = 0;
+            if (preg_match('/^ja/i', $language) || preg_match('/^en/i', $language)) {
+                $browser_result = 1;
+            }
         }
-    } else $browser_result = 0;
+    } else {
+        $browser_result = 0;
+    }
 
     /* Exception /feed & /rss access */
     $e = array("feed", "rss");
@@ -415,7 +438,6 @@ function block_wpscan()
 
     /* BOT */
     $bot = array("google", "msn", "yahoo", "bing", "hatena", "data-hotel", "twttr.com");
-    $host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
     foreach ($bot as $row) {
         if (strpos($host, $row) !== false) {
             $bot_result = 1;
@@ -427,9 +449,14 @@ function block_wpscan()
 
     /* UserAgent */
     if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
-        if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) $ua_result = 0;
-        else $ua_result = 1;
-    } else $ua_result = 0;
+        if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) {
+            $ua_result = 0;
+        } else {
+            $ua_result = 1;
+        }
+    } else {
+        $ua_result = 0;
+    }
 
 
     /* Header - Proxy */
@@ -438,11 +465,17 @@ function block_wpscan()
         $proxy_result2 = isset($_SERVER['HTTP_CLIENT_IP']) ? 0 : 1;
     }
 
-    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || $tor_result === 0) $result = 0;
+    if ($browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || @$tor_result === 0) {
+        $result = 0;
+    }
 
-    if ($bot_result === 1 || $exception_result === 1 || $request_result === 1) $result = 1;
+    if (@$bot_result === 1 || @$exception_result === 1 || $request_result === 1) {
+        $result = 1;
+    }
 
-    //echo "Result: $result\r\nIP: $ip\r\nHOST: $host\r\nException: $exception_result\r\nBrowser: $browser_result\r\nBot: $bot_result\r\nUA:$ua_result\r\nProxy1: $proxy_result1\r\nProxy2: $proxy_result2\r\nTor: $tor_result\r\nREMOTE_ADDR:{$_SERVER['REMOTE_ADDR']}\r\nSERVER_ADDR: {$_SERVER['SERVER_ADDR']}";
+    #echo "Result: $result<br>IP: $ip<br>HOST: $host<br>Exception: $exception_result<br>Browser: $browser_result
+    #<br>Bot: $bot_result<br>UA:$ua_result<br>Proxy1: $proxy_result1<br>Proxy2: $proxy_result2<br>Tor: $tor_result<br>
+    #REMOTE_ADDR:{$_SERVER['REMOTE_ADDR']}<br>SERVER_ADDR: {$_SERVER['SERVER_ADDR']}";
 
     if ($result === 0) {
         if (get_option('log') == "ON") {
@@ -455,7 +488,10 @@ function block_wpscan()
             } elseif ($tor_result === 0) {
                 $a = "Tor Access";
             }
-            toSetLog($a, $_SERVER['REMOTE_ADDR'], gethostbyaddr($_SERVER['REMOTE_ADDR']), filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS), filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_SPECIAL_CHARS), date("Y-m-d H:i"), "http://whois.domaintools.com/{$_SERVER['REMOTE_ADDR']}");
+            toSetLog($a, $ip, $host,
+                filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS),
+                filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_SPECIAL_CHARS), date("Y-m-d H:i"),
+                "http://whois.domaintools.com/${ip}");
         }
         if (get_option('first') == "msg") {
             header("HTTP / 1.0 406 Not Acceptable");
