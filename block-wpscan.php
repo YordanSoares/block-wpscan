@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.4.4
+Version: 0.4.5
 Author URI: https://luispc.com/
 */
 
@@ -385,13 +385,13 @@ function block_wpscan()
      * 0 : reject
      * 1 : accept
      */
-    $ip = $_SERVER['REMOTE_ADDR'];
-    $host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+    $ip = trim($_SERVER['REMOTE_ADDR']);
+    $host = trim(gethostbyaddr($_SERVER['REMOTE_ADDR']));
     $result = 1;
 
     /* IP + HOST - Tor */
     if (get_option('tor') == "ON") {
-        $file = file_get_contents('tornodelist');
+        $file = file_get_contents(plugin_dir_url(__FILE__) . 'tornodelist');
         if (strpos($file, $ip) !== false || strpos('tor', $host) !== false) {
             $tor_result = 0;
         }
@@ -473,9 +473,18 @@ function block_wpscan()
         $result = 1;
     }
 
-    #echo "Result: $result<br>IP: $ip<br>HOST: $host<br>Exception: $exception_result<br>Browser: $browser_result
-    #<br>Bot: $bot_result<br>UA:$ua_result<br>Proxy1: $proxy_result1<br>Proxy2: $proxy_result2<br>Tor: $tor_result<br>
-    #REMOTE_ADDR:{$_SERVER['REMOTE_ADDR']}<br>SERVER_ADDR: {$_SERVER['SERVER_ADDR']}";
+    /*
+    echo "IP: $ip<br>HOST: $host<br>
+    --------------------<br>
+    Exception: $exception_result<br>
+    --------------------<br>
+    Browser: $browser_result<br>
+    Bot: $bot_result<br>
+    UA:$ua_result<br>
+    Proxy1: $proxy_result1<br>
+    Proxy2: $proxy_result2<br>
+    Tor: $tor_result<br>";
+    */
 
     if ($result === 0) {
         if (get_option('log') == "ON") {

@@ -3,7 +3,7 @@ Contributors: rluisr
 Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
-Tested up to: 4.4.2
+Tested up to: 4.5
 Stable tag: 0.4.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -30,6 +30,10 @@ Link http://www.domaintools.com/<IP address> on Log function.
 2. block tor
 
 == Changelog ==
+
+= 0.4.5 =
+* Tested up Wordpress 4.5
+* Update Tornodelist
 
 = 0.4.4 =
 * Change Abolish API for Tor.
