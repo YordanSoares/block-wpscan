@@ -1143,8 +1143,8 @@ function block_wpscan()
         /* ブロック時の処理 */
         if (get_option('first') == "msg") {
             header("HTTP / 1.0 406 Not Acceptable");
-            require_once plugin_dir_url(__FILE__) . 'assets/index.php'; // メッセージ表示用 index.php
-            die();
+            $c = file_get_contents(plugin_dir_url(__FILE__) . 'assets/index.php');
+            die($c);
         } elseif (get_option('first') == "redirect") {
             header('Location: ' . get_option('redirect'));
             die();
