@@ -138,7 +138,6 @@ function menu_block_wpscan()
                                 <select name="timezone" size="1">
                                     <?php
                                     $tz_list = file_get_contents(plugin_dir_url(__FILE__) . 'assets/timezone');
-
                                     $timezone = get_option('timezone');
 
                                     if (strpos($tz_list, $timezone) !== false) {
@@ -146,6 +145,7 @@ function menu_block_wpscan()
                                     } else {
                                         echo $tz_list;
                                     }
+
                                     echo $tz_list; ?>
                                 </select>
 
@@ -548,7 +548,7 @@ function block_wpscan()
     /* IP + HOST - Tor */
     if (get_option('tor') == "ON") {
         $file = file_get_contents(plugin_dir_url(__FILE__) . 'tornodelist');
-        if (strpos($file, $ip) !== false || strpos('tor', $host) !== false) {
+        if (strpos($file, $ip) !== false || strpos($host, 'tor') !== false) {
             $tor_result = 0;
         }
     }
@@ -647,12 +647,14 @@ function block_wpscan()
     /* Exception UserAgent */
     if ($ua_result === 0 || $exception_result === 0 && isset($exception_ua) === true) {
         if ($ua !== false) {
-            $ua = explode(",", $ua);
+            $ua = explode(",", $exception_ua);
 
             foreach ($ua as $row) {
                 if (strpos($ua, $row) !== false) {
+                    echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
                     $exception_result = 1;
                     break;
+
                 } else {
                     $exception_result = 0;
                 }
@@ -676,7 +678,7 @@ function block_wpscan()
         $result = 1;
     }
 
-    /*
+
     echo "IP: $ip<br>HOST: $host<br>
     --------------------<br>
     Exception: $exception_result<br>
@@ -687,7 +689,7 @@ function block_wpscan()
     Proxy1: $proxy_result1<br>
     Proxy2: $proxy_result2<br>
     Tor: $tor_result<br>";
-    */
+
 
     if ($result === 0) {
         if (get_option('log') == "ON") {
