@@ -1,10 +1,17 @@
 <?php
 /*
+ * リポート機能のセキュリティ
+ * リポートログの削除機能
+ * リポートログ送信完了のカスタマイズ
+ * 例外UAの追加
+ * Timezoneの外部化
+ */
+/*
 Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.4.7
+Version: 0.5.1
 Author URI: https://luispc.com/
 */
 
@@ -837,16 +844,31 @@ function menu_block_wpscan()
                         </div>
 
                         <div class="panel panel-danger">
-                            <div class="panel-heading">Reported Access</div>
+                            <div class="panel-heading">Reported Access (It shows only latest 5)</div>
                             <div class="panel-body">
-                                <p>aaa</p>
+                                <table id="tabledata" class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>IP address</th>
+                                        <th>Date</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach (toGetReportLog() as $row) {
+                                        echo $row;
+                                    } ?>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="panel-footer">Last Updated
-                                : <?php echo htmlspecialchars(toGetInfo()->date); ?></div>
+                            <div class="panel-footer">
+                                "Reported access" is user reported as not unauthorized access.<br>
+                            </div>
                         </div>
 
                         <img src="<?php echo plugin_dir_url(__FILE__) . 'assets/images/icon-256x256.png' ?>"
                              class="img-rounded img-responsive">
+
                         <h3>block-wpscan</h3>
                         <p>This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all
                             unauthorized access.<br>
@@ -866,7 +888,6 @@ function menu_block_wpscan()
                             Twitter : https://twitter.com/lu_iskun<br>
                             Github : https://github.com/rluisr/block-wpscan<br></p>
                     </div>
-
                 </div>
             </div>
             <!-- END Setting PAGE -->
@@ -924,7 +945,7 @@ function toGetInfo()
 
 /**
  * ログを保存する。
- * 保存先は wp-content
+ * 保存先は wp-content/block-wpscan/block.list
  *
  * @param $ip IPアドレス
  * @param $host ホストネーム
@@ -944,6 +965,98 @@ function toSetLog($judgement, $ip, $host, $ua, $request_url, $date, $whois)
 }
 
 /**
+ * レポートされたIPを保存する。
+ * 保存先は wp-content/block-wpscan/report.list
+ *
+ * @param $ip IPアドレス
+ * @param $date 日付
+ */
+function toSetReport($ip, $date)
+{
+    if (file_exists(WP_CONTENT_DIR . '/block-wpscan')) {
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/report.list',
+            "${ip}|${date}\r\n", FILE_APPEND | LOCK_EX);
+    } else {
+        mkdir(WP_CONTENT_DIR . '/block-wpscan');
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/report.list',
+            "${ip}|${date}\r\n", FILE_APPEND | LOCK_EX);
+    }
+}
+
+/**
+ * リポートされたログファイルから連想配列か
+ *
+ * @return array リポートされたログファイルから多次元配列を返す
+ */
+function toCreateArrayReport()
+{
+    $b = 1;
+
+    if ($file = array_reverse(file(WP_CONTENT_DIR . '/block-wpscan/report.list'))) {
+        foreach ($file as $row) {
+            $a = explode("|", $row);
+
+            $array[] = array(
+                'count' => $b,
+                'ip' => $a[0],
+                'date' => $a[1]
+            );
+            $b++;
+        }
+    }
+
+    return $array;
+}
+
+/**
+ * リポートされたログを取得、HTML整形済み
+ *
+ * ログが膨大になってレイアウトが崩れないように最新の５件のみ表示
+ * ログの数が5以下なら、foreach
+ * 5以上はforで回してる。
+ *
+ * @return array HTMLで整形されたリポートログの情報
+ */
+function toGetReportLog()
+{
+    $a = toCreateArrayReport();
+
+    if (is_array($a) === true) {
+        if (count($a) < 5) {
+            foreach (toCreateArrayReport() as $row) {
+                $array[] = "<tr>
+                  <td>${row['count']}</td>
+                  <td>${row['ip']}</td>
+                  <td>${row['date']}</td>
+                  </tr>";
+            }
+
+        } else {
+            for ($i = 0; $i < 5; $i++) {
+                $array[] = "<tr>
+                  <td>{$a[$i]['count']}</td>
+                  <td>{$a[$i]['ip']}</td>
+                  <td>{$a[$i]['date']}</td>
+                  </tr>";
+            }
+        }
+        /*
+        foreach (toCreateArrayReport() as $row) {
+            $array[] = "<tr>
+                  <td>${row['count']}</td>
+                  <td>${row['ip']}</td>
+                  <td>${row['date']}</td>
+                  </tr>";
+        }
+        */
+    } else {
+        echo "No data yet. or Log function setting is off";
+    }
+
+    return $array;
+}
+
+/**
  * ログファイルから連想配列化
  *
  * @return array ログファイルから多次元配列を返す
@@ -955,6 +1068,7 @@ function toCreateArray()
     if ($file = array_reverse(file(WP_CONTENT_DIR . '/block-wpscan/block.list'))) {
         foreach ($file as $row) {
             $a = explode("|", $row);
+
             $array[] = array(
                 'count' => $b,
                 'judgement' => $a[0],
@@ -1073,7 +1187,8 @@ function block_wpscan()
         "grapeshot.co.uk",
         "blogmura.com",
         "apple.com",
-        "microad.jp"
+        "microad.jp",
+        "linode.com"
     );
     foreach ($bot as $row) {
         if (strpos($host, $row) !== false) {
@@ -1085,16 +1200,22 @@ function block_wpscan()
     }
 
     /* UserAgent */
-    if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
-        if (strpos($_SERVER['HTTP_USER_AGENT'], "Mozilla") === false) {
-            $ua_result = 0;
+    $array_ua = array(
+        "Mozilla",
+        "Opera"
+    );
+    foreach ($array_ua as $row) {
+        if (filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS)) {
+            if (strpos($_SERVER['HTTP_USER_AGENT'], trim($row)) !== false) {
+                $ua_result = 1;
+                break;
+            } else {
+                $ua_result = 0;
+            }
         } else {
-            $ua_result = 1;
+            $ua_result = 0;
         }
-    } else {
-        $ua_result = 0;
     }
-
 
     /* Header - Proxy */
     if (get_option('proxy') == "ON") {
@@ -1143,8 +1264,30 @@ function block_wpscan()
         /* ブロック時の処理 */
         if (get_option('first') == "msg") {
             header("HTTP / 1.0 406 Not Acceptable");
-            $c = file_get_contents(plugin_dir_url(__FILE__) . 'assets/index.php');
-            die($c);
+
+            if (isset($_POST['report']) === true) {
+                toSetReport($ip, date("Y-m-d H:i"));
+                wp_die("Thank you reported.");
+            }
+
+            $msg = get_option('msg');
+            
+            $secure_img = plugin_dir_url(__FILE__) . 'assets/secureimage/securimage_show.php';
+            $secure_img = "<img id=\"captcha\" src=\"{$secure_img}\" alt=\"CAPTCHA Image\" />";
+            
+            $html = <<< EOM
+            {$msg}
+            <form action="" method="post">
+            {$secure_img}
+            <input type="submit" value="report" name="report">
+            </form>
+            <br>
+            <input type="button" onClick='history.back();' value="back">
+EOM;
+
+            wp_die($html);
+
+            /* リダイレクトの場合 */
         } elseif (get_option('first') == "redirect") {
             header('Location: ' . get_option('redirect'));
             die();
