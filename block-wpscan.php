@@ -1,13 +1,10 @@
 <?php
 /*
- * Timezoneの外部化
- */
-/*
 Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.5.1
+Version: 0.5.2
 Author URI: https://luispc.com/
 */
 
@@ -303,6 +300,7 @@ function menu_block_wpscan()
                     About 80% can block.<br>
                     <br>
                     * Exception IPs.<br>
+                    * Exception UserAgent.<br>
                     * Proxy, Tor block ON / OFF.<br>
                     * Edit message.<br>
                     * Log function.<br>
@@ -645,13 +643,12 @@ function block_wpscan()
     }
 
     /* Exception UserAgent */
-    if ($ua_result === 0 || $exception_result === 0 && isset($exception_ua) === true) {
+    if ($ua_result === 0 && $exception_result === 0 && isset($exception_ua) === true) {
         if ($ua !== false) {
-            $ua = explode(",", $exception_ua);
+            $ua_array = explode(",", $exception_ua);
 
-            foreach ($ua as $row) {
+            foreach ($ua_array as $row) {
                 if (strpos($ua, $row) !== false) {
-                    echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
                     $exception_result = 1;
                     break;
 
@@ -678,7 +675,7 @@ function block_wpscan()
         $result = 1;
     }
 
-
+    /*
     echo "IP: $ip<br>HOST: $host<br>
     --------------------<br>
     Exception: $exception_result<br>
@@ -689,7 +686,7 @@ function block_wpscan()
     Proxy1: $proxy_result1<br>
     Proxy2: $proxy_result2<br>
     Tor: $tor_result<br>";
-
+    */
 
     if ($result === 0) {
         if (get_option('log') == "ON") {
@@ -710,7 +707,11 @@ function block_wpscan()
 
         /* ブロック時の処理 */
         if (get_option('first') == "msg") {
-            header("HTTP / 1.0 406 Not Acceptable");
+            header('HTTP / 1.1 406 Not Acceptable');
+            header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+            header('Cache-Control: no-store, no-cache, must-revalidate');
+            header('Cache-Control: post-check=0, pre-check=0', false);
 
             $msg = get_option('msg');
 
@@ -725,7 +726,7 @@ function block_wpscan()
             <a href="#" onclick="document.getElementById('captcha').src = '{$secure_img_path}/securimage_show.php?' + Math.random(); return false">
 <img src="{$secure_img_path}/images/refresh.png" alt="Reload Image" height="32" width="32" onclick="this.blur()" align="bottom" border="0"/>
 </a>
-            <input type="submit" value="check">
+            <input type="submit" value="Report">
             </form>
             <br>
             <input type="button" onClick='history.back();' value="back">
@@ -738,16 +739,17 @@ EOM;
 
                 if ($securimage->check($_POST['captcha_code']) === true) {
                     toSetReport($ip, date("Y-m-d H:i"));
-                    wp_die("Thank you reported.");
+                    wp_die("Thank you reported.", get_bloginfo('name') . " | " . "block-wpscan");
                     exit;
 
                 } else {
-                    wp_die('<p>One more time</p> <input type="button" onClick=\'history.back();\' value="back">');
+                    wp_die('<p>One more time</p> <input type="button" onClick=\'history.back();\' value="back">',
+                        get_bloginfo('name') . " | " . "block-wpscan");
                     exit;
                 }
             }
 
-            wp_die($html);
+            wp_die("<h1>Your access is rejected.</h1><br>" . $html, get_bloginfo('name') . " | " . "block-wpscan");
 
             /* リダイレクトの場合 */
         } elseif (get_option('first') == "redirect") {
