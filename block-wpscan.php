@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.5.2
+Version: 0.5.3
 Author URI: https://luispc.com/
 */
 
@@ -255,12 +255,6 @@ function menu_block_wpscan()
 
                     <div class="col-sm-4">
                         <br>
-                        <div class="panel panel-primary">
-                            <div class="panel-heading">Information</div>
-                            <div class="panel-body"><?php echo htmlspecialchars(toGetInfo()->msg); ?></div>
-                            <div class="panel-footer">Last Updated
-                                : <?php echo htmlspecialchars(toGetInfo()->date); ?></div>
-                        </div>
 
                         <form action="" method="post">
                             <div class="panel panel-danger">
@@ -352,20 +346,6 @@ function menu_block_wpscan()
     </div>
     </div>
 <?php }
-
-/**
- * APIサーバーからメッセージを受信する。
- *
- * @return mixed APIサーバーから受信したメッセージ
- */
-function toGetInfo()
-{
-    $url = 'https://c.xzy.pw/judgementAPI-for-Tor/message.php';
-    $options = array('http' => array('method' => 'POST'),);
-    $context = stream_context_create($options);
-    $result = json_decode(file_get_contents($url, false, $context));
-    return $result;
-}
 
 /**
  * ログを保存する。
@@ -609,7 +589,9 @@ function block_wpscan()
         "blogmura.com",
         "apple.com",
         "microad.jp",
-        "linode.com"
+        "linode.com",
+        "shadowserver.org",
+        "ezweb.ne.jp"
     );
 
     foreach ($bot as $row) {
@@ -625,7 +607,8 @@ function block_wpscan()
     /* UserAgent */
     $array_ua = array(
         "Mozilla",
-        "Opera"
+        "Opera",
+        "Twitterbot/1.0"
     );
 
     foreach ($array_ua as $row) {
