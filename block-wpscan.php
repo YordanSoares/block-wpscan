@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.5.3
+Version: 0.5.4
 Author URI: https://luispc.com/
 */
 
@@ -234,7 +234,7 @@ function menu_block_wpscan()
                             <br>
 
                             <div class="form-group">
-                                <h3>7. Log fnction</h3>
+                                <h3>7. Log function</h3>
                                 <h5>If you check on, It takes a bit of a while load time. Please test.</h5>
                                 <label class="radio-inline">
                                     <?php echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"log\" value=\"ON\">ON"; ?>
@@ -534,13 +534,33 @@ function block_wpscan()
     /* Exception IP */
     $exception_result = $ip === $_SERVER['SERVER_ADDR'] ? 1 : 0;
     if (isset($exception_ip) == true || $exception_result === 0) {
-        $exception_ip = explode(",", $exception_ip);
-        $exception_ip[] = "127.0.0.1"; // for reverse proxy
 
-        foreach ($exception_ip as $row) {
-            if ($row == $ip) {
-                $exception_result = 1;
-                break;
+        ### Exception JetPack Access ###
+        $jetpack_ip = "192.0.64.0/18";
+
+        $tmp_array = explode("/", $jetpack_ip);
+        $accept_ip = $tmp_array[0];
+        $mask = $tmp_array[1];
+
+        $accept_long = ip2long($accept_ip) >> (32 - $mask);
+        $remote_long = ip2long($ip) >> (32 - $mask);
+
+        if ($accept_long == $remote_long) {
+            $exception_ip = 1;
+        } else {
+            $exception_ip = 0;
+        }
+        ################################
+
+        if ($exception_ip === 0) {
+            $exception_ip = explode(",", $exception_ip);
+            $exception_ip[] = "127.0.0.1"; // for reverse proxy
+
+            foreach ($exception_ip as $row) {
+                if ($row == $ip) {
+                    $exception_result = 1;
+                    break;
+                }
             }
         }
     }
@@ -689,12 +709,11 @@ function block_wpscan()
         }
 
         /* ブロック時の処理 */
-        if (get_option('first') == "msg") {
+        if (get_option('first') === "msg") {
             header('HTTP / 1.1 406 Not Acceptable');
             header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
             header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
             header('Cache-Control: no-store, no-cache, must-revalidate');
-            header('Cache-Control: post-check=0, pre-check=0', false);
 
             $msg = get_option('msg');
 
@@ -715,7 +734,8 @@ function block_wpscan()
             <input type="button" onClick='history.back();' value="back">
 EOM;
 
-            if (!empty($_POST['captcha_code'])) {
+            /* 報告されたらここだよ */
+            if ($_POST['captcha_code'] === true) {
                 require_once plugin_dir_path(__FILE__) . 'assets/securimage/securimage.php';
 
                 $securimage = new Securimage();
@@ -730,12 +750,18 @@ EOM;
                         get_bloginfo('name') . " | " . "block-wpscan");
                     exit;
                 }
+            } else {
+                wp_die('<p>One more time</p> <input type="button" onClick=\'history.back();\' value="back">',
+                    get_bloginfo('name') . " | " . "block-wpscan");
+                exit;
             }
+
+            /***************************************************************************************************/
 
             wp_die("<h1>Your access is rejected.</h1><br>" . $html, get_bloginfo('name') . " | " . "block-wpscan");
 
-            /* リダイレクトの場合 */
-        } elseif (get_option('first') == "redirect") {
+            /* リダイレクト */
+        } elseif (get_option('first') === "redirect") {
             header('Location: ' . get_option('redirect'));
             die();
         }

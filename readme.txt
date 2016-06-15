@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
 Tested up to: 4.5.2
-Stable tag: 0.5.3
+Stable tag: 0.5.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,11 @@ See more "Secreenshot".
 3. setting menu
 
 == Changelog ==
+
+= 0.5.4 =
+* Add Exception Access from JetPack.
+* Update Tornodelist.
+* Modify Code.
 
 = 0.5.3 =
 * Tested up Wordpress 4.5.2
