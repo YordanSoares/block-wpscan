@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
 Tested up to: 4.5.2
-Stable tag: 0.5.4
+Stable tag: 0.5.5
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,10 @@ See more "Secreenshot".
 3. setting menu
 
 == Changelog ==
+
+= 0.5.5 =
+* Modfiy Add Own Server's global IP Automatically.
+* Fix Tor blocking behavior.
 
 = 0.5.4 =
 * Add Exception Access from JetPack.

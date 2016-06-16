@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.5.4
+Version: 0.5.5
 Author URI: https://luispc.com/
 */
 
@@ -78,6 +78,10 @@ function admin_block_wpscan()
  */
 function menu_block_wpscan()
 {
+    /* 自サーバーのグローバルIP */
+    $exec = shell_exec('curl inet-ip.info/ip');
+    $own_server_ip = trim($exec);
+
     if (isset($_POST['msg']) || isset($_POST['proxy']) || isset($_POST['tor']) || isset($_POST['ip']) || isset($_POST['log']) || isset($_POST['timezone']) && check_admin_referer('check_admin_referer')) {
         update_option('timezone',
             esc_html(htmlspecialchars(filter_input(INPUT_POST, 'timezone', FILTER_SANITIZE_SPECIAL_CHARS),
@@ -218,7 +222,8 @@ function menu_block_wpscan()
                                     <global> for other plugins. ex)Broken Link Checker<br>
                                         Example: 1.1.1.1,2.2.2.2,3.3.3.3
                                 </h5>
-                                <input class="form-control" type="text" name="ip" value="<?php echo $ip ?>">
+                                <input class="form-control" type="text" name="ip"
+                                       value="<?php echo $own_server_ip . ' ' . $ip ?>">
                             </div>
 
                             <br>
@@ -750,10 +755,6 @@ EOM;
                         get_bloginfo('name') . " | " . "block-wpscan");
                     exit;
                 }
-            } else {
-                wp_die('<p>One more time</p> <input type="button" onClick=\'history.back();\' value="back">',
-                    get_bloginfo('name') . " | " . "block-wpscan");
-                exit;
             }
 
             /***************************************************************************************************/
