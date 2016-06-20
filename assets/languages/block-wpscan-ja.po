@@ -1,0 +1,228 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: block-wpscan v0.5.5\n"
+"POT-Creation-Date: 2016-06-20 21:25+0900\n"
+"PO-Revision-Date: 2016-06-20 21:26+0900\n"
+"Last-Translator: rluisr <detteiu.x14th@gmail.com>\n"
+"Language-Team: rluisr <detteiu.x14th@gmail.com>\n"
+"Language: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;_e\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals = 1; plural = 0;\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../block-wpscan.php:36
+msgid "Thank you reported."
+msgstr ""
+"報告ありがとうございます。この報告は管理者へ通知され、例外として追加されれば"
+"あなたはアクセスすることができるようになります。"
+
+#: ../block-wpscan.php:40
+msgid ""
+"<p>One more time</p> <input type=\"button\" onClick='history.back();' value="
+"\"back\">"
+msgstr ""
+"<p>もう一度お願いします。</p> <input type=\"button\" onClick='history.back"
+"();' value=\"back\">"
+
+#: ../block-wpscan.php:105
+msgid ""
+"<p>Thank you for installing block-wpscan. You have to setup for block-wpscan."
+"</p>"
+msgstr ""
+"<p>block-wpscanをインストールしていただきありがとうございます。最初に左のメ"
+"ニューより設定を行ってください。</p>"
+
+#: ../block-wpscan.php:123
+msgid ""
+"<p>This server didn't load `curl` module. Please check your `php.ini` or "
+"install `php-common`.<br>\n"
+"\t\t\t\tWhen you installed `php-common` and others, disable the plugin one "
+"time and enable it again.<br>\n"
+"\t\t\t\tIf you can't resolve this, you should add your server's global ip "
+"address on `Exception IP`.</p>\n"
+"\t\t\t\t</div>"
+msgstr ""
+"<p>使用されているサーバーは `curl` モジュールが読み込まれていません。`php."
+"ini` をチェックするか、または`php-common` をインストールしてください。<br>\n"
+"\t\t\t\tサーバーの設定を正しく設定した場合は再度 block-wpscan を無効にし、有"
+"効にしてください。<br>\n"
+"\t\t\t\tもしこの問題が解決できない場合は「例外IPの追加」で使用されているサー"
+"バーのグローバルIPアドレスを設定してください。</p>\n"
+"\t\t\t\t</div>"
+
+#: ../block-wpscan.php:195
+msgid "1. Set your Timezone."
+msgstr "1. タイムゾーンの設定"
+
+#: ../block-wpscan.php:213
+msgid "2. What do you want to do, when the access is blocked."
+msgstr "2. ブロックしたときの動作"
+
+#: ../block-wpscan.php:217
+msgid "<input type=\"radio\" name=\"first\" value=\"msg\" checked>Message"
+msgstr "<input type=\"radio\" name=\"first\" value=\"msg\" checked>メッセージ"
+
+#: ../block-wpscan.php:222
+msgid "<input type=\"radio\" name=\"first\" value=\"msg\">Message"
+msgstr "<input type=\"radio\" name=\"first\" value=\"msg\">メッセージ"
+
+#: ../block-wpscan.php:228
+msgid ""
+"<input type=\"radio\" name=\"first\" value=\"redirect\" checked>Redirect"
+msgstr ""
+"<input type=\"radio\" name=\"first\" value=\"redirect\" checked>リダイレクト"
+
+#: ../block-wpscan.php:233
+msgid "<input type=\"radio\" name=\"first\" value=\"redirect\">Redirect"
+msgstr "<input type=\"radio\" name=\"first\" value=\"redirect\">リダイレクト"
+
+#: ../block-wpscan.php:257
+msgid "If you are using CDN service, you must not check ON."
+msgstr "もしCDNを使用している環境であれば絶対にこの設定をOFFにしてください。"
+
+#: ../block-wpscan.php:271
+msgid "If you check ON, It takes a bit of a while load time. Please test."
+msgstr ""
+"これをONにするとパフォーマンスに影響を出すかもしれません。テストを行うことを"
+"推奨します。"
+
+#: ../block-wpscan.php:284
+msgid "5. Exception IP"
+msgstr "例外IPの設定"
+
+#: ../block-wpscan.php:285
+msgid "If you have many exception IPs, Please split with ','"
+msgstr "もし複数例外IPアドレスを設定したい場合 ',' で区切ってください"
+
+#: ../block-wpscan.php:296
+msgid "6. Exception UserAgent"
+msgstr "例外ユーザーエージェントの設定"
+
+#: ../block-wpscan.php:297
+msgid "If you have many exception IPs,Please sprit with ','"
+msgstr "もし複数例外IPアドレスを設定したい場合 ',' で区切ってください"
+
+#: ../block-wpscan.php:307
+msgid "7. Log function"
+msgstr "ログ機能"
+
+#: ../block-wpscan.php:330
+msgid "Reported Access (It shows only latest 5)"
+msgstr "報告されたアクセス（最新５件）"
+
+#: ../block-wpscan.php:357
+msgid "Reported access is user reported as not unauthorized access."
+msgstr ""
+"報告されたアクセスは、正規のユーザーであると申告されたアクセスを表示していま"
+"す。"
+
+#: ../block-wpscan.php:366
+msgid ""
+"This plugin block Tor, Proxy, Command Line access and wpscan. But it can't "
+"block all\n"
+"\t\t\t\t\tunauthorized access."
+msgstr ""
+"このプラグインは Tor, Proxy, コマンドライン、wpscan からなどの不正なアクセス"
+"をブロックします。\n"
+"\t\t\t\t\t"
+
+#: ../block-wpscan.php:368
+msgid ""
+"Tor access is blocked by Tornodelist. If Tor access is isn't registration of "
+"Tornodelist, It\n"
+"\t\t\t\t\tcan't block Tor access."
+msgstr ""
+"Torからのアクセスは tornodelist によってブロックされます。もしこのリストに登"
+"録されていなかったらブロックすることはできません。"
+
+#: ../block-wpscan.php:370
+msgid "About 80percent can block."
+msgstr "大体80パーセントのアクセスをブロックできます。"
+
+#: ../block-wpscan.php:372
+msgid "Exception IPs."
+msgstr "例外IPの設定"
+
+#: ../block-wpscan.php:373
+msgid "Exception UserAgent."
+msgstr "例外ユーザーエージェントの設定"
+
+#: ../block-wpscan.php:374
+msgid "Proxy, Tor block ON / OFF."
+msgstr "Proxy, TorのON/OFF機能"
+
+#: ../block-wpscan.php:375
+msgid "Edit message."
+msgstr "メッセージの編集"
+
+#: ../block-wpscan.php:376
+msgid "Log function."
+msgstr "ログ機能"
+
+#: ../block-wpscan.php:378
+msgid "Googlebot and more can access own server."
+msgstr ""
+"もちろんGooglebotなどの有名なクローラーからのアクセスはブロックしません。"
+
+#: ../block-wpscan.php:380
+msgid ""
+"If you have any problems or requests, Please contact me with github or "
+"twitter."
+msgstr "もし何か要望や問題があれば Twitter, GitHub からお知らせください。"
+
+#~ msgid "If you check on, It takes a bit of a while load time. Please test."
+#~ msgstr ""
+#~ "これをONにするとパフォーマンスに影響を出すかもしれません。テストを行うこと"
+#~ "を推奨します。"
+
+#~ msgid "3. Block Proxy ON / OFF"
+#~ msgstr "3. プロキシをブロックするか"
+
+#~ msgid ""
+#~ "This plugin block Tor, Proxy, Command Line access and wpscan. But it "
+#~ "can't block all\n"
+#~ "\t\t\t\t\tunauthorized access.<br>\n"
+#~ "\t\t\t\t\tTor access is blocked by Tornodelist. If Tor access is isn't "
+#~ "registration of Tornodelist, It\n"
+#~ "\t\t\t\t\tcan't block Tor access.<br>\n"
+#~ "\t\t\t\t\tAbout 80% can block.<br>\n"
+#~ "\t\t\t\t\t<br>\n"
+#~ "\t\t\t\t\t* Exception IPs.<br>\n"
+#~ "\t\t\t\t\t* Exception UserAgent.<br>\n"
+#~ "\t\t\t\t\t* Proxy, Tor block ON / OFF.<br>\n"
+#~ "\t\t\t\t\t* Edit message.<br>\n"
+#~ "\t\t\t\t\t* Log function.<br>\n"
+#~ "\t\t\t\t\t<br>\n"
+#~ "\t\t\t\t\tGooglebot and more can access own server.<br>\n"
+#~ "\t\t\t\t\t<br>\n"
+#~ "\t\t\t\t\tIf you have any problems or requests, Please contact me with "
+#~ "github or twitter.<br>\n"
+#~ "\t\t\t\t\tTwitter : https://twitter.com/lu_iskun<br>\n"
+#~ "\t\t\t\t\tGithub : https://github.com/rluisr/block-wpscan"
+#~ msgstr ""
+#~ "このプラグインは Tor, Proxy, コマンドライン、そしてwpscanからのアクセスを"
+#~ "ブロックします。しかし全ての不正なアクセスを\n"
+#~ "\t\t\t\t\tブロックできる保証はできません。<br>\n"
+#~ "\t\t\t\t\tTorアクセスのブロックは、保存されている「tornodelist」にあるもの"
+#~ "がブロックされます。 It\n"
+#~ "\t\t\t\t\t全てをブロックできるわけではなく<br>\n"
+#~ "\t\t\t\t\t大体80%のTorアクセスをブロックできます。<br>\n"
+#~ "\t\t\t\t\t<br>\n"
+#~ "\t\t\t\t\t* 例外IPの設定<br>\n"
+#~ "\t\t\t\t\t* 例外ユーザーエージェントの設定<br>\n"
+#~ "\t\t\t\t\t* Proxy, Torの設定のON/OFF<br>\n"
+#~ "\t\t\t\t\t* メッセージ編集機能<br>\n"
+#~ "\t\t\t\t\t* ログ機能<br>\n"
+#~ "\t\t\t\t\t<br>\n"
+#~ "\t\t\t\t\tGooglebotを始めとした有名なクローラーからのアクセスはブロックし"
+#~ "ません。<br>\n"
+#~ "\t\t\t\t\t<br>\n"
+#~ "\t\t\t\t\tもし何かあればTwitterかGitHubでお知らせください。<br>\n"
+#~ "\t\t\t\t\tTwitter : https://twitter.com/lu_iskun<br>\n"
+#~ "\t\t\t\t\tGithub : https://github.com/rluisr/block-wpscan"

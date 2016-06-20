@@ -4,33 +4,15 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.5.5
+Version: 0.6.0
 Author URI: https://luispc.com/
-*/
-
-/* Copyright 2016 rluisr (contact: @lu_iskun)
-
-    Licence is GPLv2 (http://www.gnu.org/licenses/gpl-2.0.html)
-
-    This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all unauthorized access.
-    Tor access is blocked by Tornodelist. If Tor access is isn't registration of Tornodelist, It can't block Tor access.
-    About 80% can block.
-
-    * Exception IPs.
-    * Proxy, Tor block ON / OFF.
-    * Edit message.
-    * Log function.
-
-    You should add server's global ip for other plugins. ex)Broken Link Checker.
-    Googlebot and more can access own server.
-
-    If you have any problems or requests, Please contact me with github or twitter.
-    Twitter : https://twitter.com/lu_iskun
-    Github  : https://github.com/rluisr/block-wpscan
 */
 
 /*  Using jquery-searcher for search on Log function
     License is MIT. https://github.com/lloiser/jquery-searcher/blob/master/LICENSE
+*/
+
+/*  Calling inet-ip.info for get ownserver's global ip
 */
 
 /* Block direct access */
@@ -39,11 +21,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /* Set Timezone */
-date_default_timezone_set( get_option( 'timezone' ) );
+if ( get_option( 'timezone' ) !== false ) {
+	date_default_timezone_set( get_option( 'timezone' ) );
+}
 
+/* Translate */
+load_plugin_textdomain( 'block-wpscan', false, plugin_basename( dirname( __FILE__ ) ) . '/assets/languages' );
+
+/* Reported */
+if ( isset( $_POST['captcha_code'] ) === true ) {
+	require_once plugin_dir_path( __FILE__ ) . 'assets/securimage/securimage.php';
+
+	$securimage = new Securimage();
+
+	if ( $securimage->check( $_POST['captcha_code'] ) === true ) {
+		toSetReport( trim( $_SERVER['REMOTE_ADDR'] ), date( "Y-m-d H:i" ) );
+		wp_die( _e( "Thank you reported.", 'block-wpscan' ), get_bloginfo( 'name' ) . " | " . "block-wpscan" );
+		exit;
+
+	} else {
+		wp_die( _e( '<p>One more time</p> <input type="button" onClick=\'history.back();\' value="back">',
+			'block-wpscan' ), get_bloginfo( 'name' ) . " | " . "block-wpscan" );
+		exit;
+	}
+}
+/***************************************************************************************************/
+
+add_action( 'init', 'block_wpscan' );
+add_action( 'admin_menu', 'toGetOwnIP' );
+add_action( 'admin_notices', 'admin_first_setting' );
+add_action( 'admin_notices', 'admin_curl_error' );
 add_action( 'admin_menu', 'admin_block_wpscan' );
 add_action( 'admin_enqueue_scripts', 'register_frontend' );
-add_action( 'init', 'block_wpscan', 1 );
 
 /**
  * スクリプト、スタイルシートの読み込み
@@ -56,16 +65,17 @@ function register_frontend( $hook_suffix ) {
 		wp_enqueue_script( 'bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
 			array(), null, false );
 		wp_enqueue_style( 'bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' );
-		wp_enqueue_script( 'bw.js', plugin_dir_url( __FILE__ ) . 'assets/js/style.js', array( 'jquery' ), null, false );
-		wp_enqueue_script( 'quick.js', plugin_dir_url( __FILE__ ) . 'assets/js/jquery.searcher.js', array( 'jquery' ),
+		wp_enqueue_script( 'bw.js', plugin_dir_path( __FILE__ ) . 'assets/js/style.js', array( 'jquery' ), null,
+			false );
+		wp_enqueue_script( 'quick.js', plugin_dir_path( __FILE__ ) . 'assets/js/jquery.searcher.js', array( 'jquery' ),
 			null, true );
-		wp_enqueue_script( 'search.js', plugin_dir_url( __FILE__ ) . 'assets/js/search.js', array( 'quick.js' ), null,
+		wp_enqueue_script( 'search.js', plugin_dir_path( __FILE__ ) . 'assets/js/search.js', array( 'quick.js' ), null,
 			true );
 	}
 }
 
 /**
- * 管理関連の設定
+ * setting for Admin
  */
 function admin_block_wpscan() {
 	add_menu_page( 'block-wpscan', 'block-wpscan', 'administrator', 'block-wpscan', 'menu_block_wpscan',
@@ -73,57 +83,61 @@ function admin_block_wpscan() {
 }
 
 /**
- * エラー
+ * notices first setting
  */
-function block_wpscan_error( $text ) {
-	$text = "死ね";
-	$html = "<div class=\"message error\"><p>$text</p></div>";
-	echo $html;
+function admin_first_setting() {
+	if ( get_option( 'proxy' ) === false ) {
+		$html = "
+			<div class=\"updated notice\">
+			<h4>block-wpscan</h4>" . _e( "<p>Thank you for installing block-wpscan. You have to setup for block-wpscan.</p>",
+				'block-wpscan' ) . "
+			</div>
+			<br>
+			";
+
+		echo $html;
+	}
 }
 
 /**
- * 管理画面
+ * notices curl module error
+ */
+function admin_curl_error() {
+	if ( get_option( 'curl_module' ) === "0" ) {
+		$html = "
+				<div class=\"notice notice-error is-dismissable\">
+				<h4>block-wpscan</h4>" . _e( "<p>This server didn't load `curl` module. Please check your `php.ini` or install `php-common`.<br>
+				When you installed `php-common` and others, disable the plugin one time and enable it again.<br>
+				If you can't resolve this, you should add your server's global ip address on `Exception IP`.</p>
+				</div>", 'block-wpscan' );
+
+		echo $html;
+	}
+}
+
+/**
+ * Admin
  */
 function menu_block_wpscan() {
-	$ownserverip = get_option( 'ownserverip' );
-	if ( $ownserverip === false ) {
-		toGetOwnIP();
-		$ownserverip = get_option( 'ownserverip' );
-	}
-
 	if ( isset( $_POST['msg'] ) || isset( $_POST['proxy'] ) || isset( $_POST['tor'] ) || isset( $_POST['ip'] ) || isset( $_POST['log'] ) || isset( $_POST['timezone'] ) && check_admin_referer( 'check_admin_referer' ) ) {
-		update_option( 'timezone',
-			esc_html( htmlspecialchars( filter_input( INPUT_POST, 'timezone', FILTER_SANITIZE_SPECIAL_CHARS ),
-				ENT_QUOTES ) ) );
-		update_option( 'first',
-			esc_html( htmlspecialchars( filter_input( INPUT_POST, 'first', FILTER_SANITIZE_SPECIAL_CHARS ),
-				ENT_QUOTES ) ) );
-		@update_option( 'msg', $_POST['msg'] );
-		@update_option( 'redirect', esc_html( filter_input( INPUT_POST, 'redirect', FILTER_VALIDATE_URL ) ) );
-		update_option( 'proxy',
-			esc_html( htmlspecialchars( filter_input( INPUT_POST, 'proxy', FILTER_SANITIZE_SPECIAL_CHARS ),
-				ENT_QUOTES ) ) );
-		update_option( 'tor',
-			esc_html( htmlspecialchars( filter_input( INPUT_POST, 'tor', FILTER_SANITIZE_SPECIAL_CHARS ),
-				ENT_QUOTES ) ) );
-		update_option( 'ip',
-			esc_html( htmlspecialchars( filter_input( INPUT_POST, 'ip', FILTER_SANITIZE_SPECIAL_CHARS ),
-				ENT_QUOTES ) ) );
-		update_option( 'ua',
-			esc_html( htmlspecialchars( filter_input( INPUT_POST, 'ua', FILTER_SANITIZE_SPECIAL_CHARS ),
-				ENT_QUOTES ) ) );
-		update_option( 'log',
-			esc_html( htmlspecialchars( filter_input( INPUT_POST, 'log', FILTER_SANITIZE_SPECIAL_CHARS ),
-				ENT_QUOTES ) ) );
+		$a = update_option( 'timezone', filter_input( INPUT_POST, 'timezone', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$b = update_option( 'first', filter_input( INPUT_POST, 'first', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$c = update_option( 'msg', filter_input( INPUT_POST, 'msg', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$d = update_option( 'redirect', filter_input( INPUT_POST, 'redirect', FILTER_VALIDATE_URL ) );
+		$e = update_option( 'proxy', filter_input( INPUT_POST, 'proxy', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$f = update_option( 'tor', filter_input( INPUT_POST, 'tor', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$g = update_option( 'ip', filter_input( INPUT_POST, 'ip', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$h = update_option( 'ua', filter_input( INPUT_POST, 'ua', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$i = update_option( 'log', filter_input( INPUT_POST, 'log', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
 	}
 
-	$msg      = get_option( 'msg' );
-	$redirect = get_option( 'redirect' );
-	$proxy    = get_option( 'proxy' );
-	$tor      = get_option( 'tor' );
-	$ip       = get_option( 'ip' );
-	$ua       = get_option( 'ua' );
-	$log      = get_option( 'log' );
+	@$msg = get_option( 'msg' );
+	@$redirect = get_option( 'redirect' );
+	$proxy = get_option( 'proxy' );
+	$tor   = get_option( 'tor' );
+	$ip    = get_option( 'ip' );
+	$ua    = get_option( 'ua' );
+	$log   = get_option( 'log' );
 
 	/* Delete Block list */
 	if ( isset( $_POST['delete'] ) ) {
@@ -150,11 +164,11 @@ function menu_block_wpscan() {
 					<div class="col-sm-7">
 						<form action="" method="post">
 							<div class="form-group">
-								<h3>1. Set your Timezone.</h3>
+								<h3><?php echo _e( "1. Set your Timezone.", 'block-wpscan' ); ?></h3>
 								<select name="timezone" size="1">
 									<?php
-									$tz_list  = file_get_contents( plugin_dir_url( __FILE__ ) . 'assets/timezone' );
-									$timezone = get_option( 'timezone' );
+									$tz_list = file_get_contents( plugin_dir_path( __FILE__ ) . 'assets/timezone' );
+									@$timezone = get_option( 'timezone' );
 
 									if ( strpos( $tz_list, $timezone ) !== false ) {
 										$tz_list = str_replace( "{$timezone}\"", "{$timezone}\" selected", $tz_list );
@@ -168,23 +182,28 @@ function menu_block_wpscan() {
 								<br>
 								<br>
 
-								<h3>2. What do you want to do, when the access is blocked.</h3>
+								<h3><?php echo _e( "2. What do you want to do, when the access is blocked.",
+										'block-wpscan' ); ?></h3>
 								<?php if ( get_option( 'first' ) == 'msg' ) {
 									echo "<label class=\"radio-inline\">";
-									echo "<input type=\"radio\" name=\"first\" value=\"msg\" checked>Message";
+									echo _e( "<input type=\"radio\" name=\"first\" value=\"msg\" checked>Message",
+										'block-wpscan' );
 									echo "</label >";
 								} else {
 									echo "<label class=\"radio-inline\">";
-									echo "<input type=\"radio\" name=\"first\" value=\"msg\">Message";
+									echo _e( "<input type=\"radio\" name=\"first\" value=\"msg\">Message",
+										'block-wpscan' );
 									echo "</label >";
 								}
 								if ( get_option( 'first' ) == 'redirect' ) {
 									echo "<label class=\"radio-inline\">";
-									echo "<input type=\"radio\" name=\"first\" value=\"redirect\" checked>Redirect";
+									echo _e( "<input type=\"radio\" name=\"first\" value=\"redirect\" checked>Redirect",
+										'block-wpscan' );
 									echo "</label >";
 								} else {
 									echo "<label class=\"radio-inline\">";
-									echo "<input type=\"radio\" name=\"first\" value=\"redirect\">Redirect";
+									echo _e( "<input type=\"radio\" name=\"first\" value=\"redirect\">Redirect",
+										'block-wpscan' );
 									echo "</label >";
 								} ?>
 
@@ -192,21 +211,23 @@ function menu_block_wpscan() {
 								<br>
 
 								<?php if ( get_option( 'first' ) == 'msg' ) {
-									echo "<textarea class=\"input_x form-control\" name=\"msg\" placeholder=\"What message do you want to display? It can use HTML.\">" . esc_html( $msg ) . "</textarea>";
+									echo "<textarea class=\"input_x form-control\" name=\"msg\" placeholder=\"What message do you want to display?\">" . esc_html( $msg ) . "</textarea>";
 								} else {
 									echo "<textarea class=\"input_x form-control\" style=\"display:none\" name=\"msg\" placeholder=\"What message do you want to display?\">" . esc_html( $msg ) . "</textarea>";
 								}
 								if ( get_option( 'first' ) == 'redirect' ) {
-									echo "<input class=\"input_x form-control\" type=\"text\" name=\"redirect\" placeholder=\"Example: https://luispc.com/\" value=\"$redirect \">";
+									echo "<input class=\"input_x form-control\" type=\"text\" name=\"redirect\" placeholder=\"Example: https://luispc.com/\" value=\"$redirect\">";
 								} else {
-									echo "<input class=\"input_x form-control\" style=\"display:none\" type=\"text\" name=\"redirect\" placeholder=\"Example: https://luispc.com/\" value=\"$redirect \">";
+									echo "<input class=\"input_x form-control\" style=\"display:none\" type=\"text\" name=\"redirect\" placeholder=\"Example: https://luispc.com/\" value=\"$redirect\">";
 								} ?>
 							</div>
 
 							<br>
 
 							<div class="form-group">
-								<h3>3. Block Proxy ON / OFF </h3>
+								<h3>3. Block Proxy ON / OFF</h3>
+								<h5><?php echo _e( "If you are using CDN service, you must not check ON.",
+										'block-wpscan' ); ?></h5>
 								<label class="radio-inline">
 									<?php echo $proxy == "ON" ? "<input type=\"radio\" name=\"proxy\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"proxy\" value=\"ON\">ON"; ?>
 								</label>
@@ -219,7 +240,8 @@ function menu_block_wpscan() {
 
 							<div class="form-group">
 								<h3>4. Block Tor ON / OFF</h3>
-								<h5>If you check ON, It takes a bit of a while load time. Please test.</h5>
+								<h5><?php echo _e( "If you check ON, It takes a bit of a while load time. Please test.",
+										'block-wpscan' ); ?></h5>
 								<label class="radio-inline">
 									<?php echo $tor == "ON" ? "<input type=\"radio\" name=\"tor\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"tor\" value=\"ON\">ON"; ?>
 								</label>
@@ -231,21 +253,21 @@ function menu_block_wpscan() {
 							<br>
 
 							<div class="form-group">
-								<h3>5. Exception IP</h3>
-								<h5>If you have many exception IPs,Please sprit with ","<br>
-									You should add server's ip
-									<global> for other plugins. ex)Broken Link Checker<br>
-										Example: 1.1.1.1,2.2.2.2,3.3.3.3
+								<h3><?php echo _e( "5. Exception IP", 'block-wpscan' ); ?></h3>
+								<h5><?php echo _e( "If you have many exception IPs, Please split with ','",
+										'block-wpscan' ); ?><br>
+									Example: 1.1.1.1,2.2.2.2,3.3.3.3
 								</h5>
 								<input class="form-control" type="text" name="ip"
-								       value="<?php echo $own_server_ip . ' ' . $ip ?>">
+								       value="<?php echo $ip ?>">
 							</div>
 
 							<br>
 
 							<div class="form-group">
-								<h3>6. Exception UserAgent</h3>
-								<h5>If you have many exception IPs,Please sprit with ","<br>
+								<h3><?php echo _e( "6. Exception UserAgent", 'block-wpscan' ); ?></h3>
+								<h5><?php echo _e( "If you have many exception IPs,Please sprit with ','",
+										'block-wpscan' ); ?><br>
 									Example: crawler,crawler_1
 								</h5>
 								<input class="form-control" type="text" name="ua" value="<?php echo $ua ?>">
@@ -254,8 +276,7 @@ function menu_block_wpscan() {
 							<br>
 
 							<div class="form-group">
-								<h3>7. Log function</h3>
-								<h5>If you check on, It takes a bit of a while load time. Please test.</h5>
+								<h3><?php echo _e( "7. Log function", 'block-wpscan' ); ?></h3>
 								<label class="radio-inline">
 									<?php echo $log == "ON" ? "<input type=\"radio\" name=\"log\" value=\"ON\" checked>ON" : "<input type=\"radio\" name=\"log\" value=\"ON\">ON"; ?>
 								</label>
@@ -278,7 +299,8 @@ function menu_block_wpscan() {
 
 						<form action="" method="post">
 							<div class="panel panel-danger">
-								<div class="panel-heading">Reported Access (It shows only latest 5)
+								<div class="panel-heading"><?php echo _e( "Reported Access (It shows only latest 5)",
+										'block-wpscan' ); ?>
 									<input type="submit" class="btn btn-danger" name="delete_reported" value="Delete">
 						</form>
 					</div>
@@ -304,7 +326,8 @@ function menu_block_wpscan() {
 						</table>
 					</div>
 					<div class="panel-footer">
-						"Reported access" is user reported as not unauthorized access.<br>
+						<?php echo _e( "Reported access is user reported as not unauthorized access.",
+							'block-wpscan' ); ?><br>
 					</div>
 				</div>
 
@@ -312,24 +335,24 @@ function menu_block_wpscan() {
 				     class="img-rounded img-responsive">
 
 				<h3>block-wpscan</h3>
-				<p>This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all
-					unauthorized access.<br>
-					Tor access is blocked by Tornodelist. If Tor access is isn't registration of Tornodelist, It
-					can't block Tor access.<br>
-					About 80% can block.<br>
+				<p><?php echo _e( "This plugin block Tor, Proxy, Command Line access and wpscan. But it can't block all
+					unauthorized access.", 'block-wpscan' ); ?><br>
+					<?php echo _e( "Tor access is blocked by Tornodelist. If Tor access is isn't registration of Tornodelist, It
+					can't block Tor access.", 'block-wpscan' ); ?><br>
+					<?php echo _e( "About 80percent can block.", 'block-wpscan' ); ?><br>
 					<br>
-					* Exception IPs.<br>
-					* Exception UserAgent.<br>
-					* Proxy, Tor block ON / OFF.<br>
-					* Edit message.<br>
-					* Log function.<br>
+					* <?php echo _e( "Exception IPs.", 'block-wpscan' ); ?><br>
+					* <?php echo _e( "Exception UserAgent.", 'block-wpscan' ); ?><br>
+					* <?php echo _e( "Proxy, Tor block ON / OFF.", 'block-wpscan' ); ?><br>
+					* <?php echo _e( "Edit message.", 'block-wpscan' ); ?><br>
+					* <?php echo _e( "Log function.", 'block-wpscan' ); ?><br>
 					<br>
-					You should add server's global ip for other plugins. ex)Broken Link Checker.<br>
-					Googlebot and more can access own server.<br>
+					<?php echo _e( "Googlebot and more can access own server.", 'block-wpscan' ); ?><br>
 					<br>
-					If you have any problems or requests, Please contact me with github or twitter.<br>
+					<?php echo _e( "If you have any problems or requests, Please contact me with github or twitter.",
+						'block-wpscan' ); ?><br>
 					Twitter : https://twitter.com/lu_iskun<br>
-					Github : https://github.com/rluisr/block-wpscan<br></p>
+					Github : https://github.com/rluisr/block-wpscan"<br></p>
 			</div>
 		</div>
 	</div>
@@ -378,22 +401,29 @@ function menu_block_wpscan() {
 <?php }
 
 /**
+ * ※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※
+ * ※　よく考えたら REMOTE_ADDR == SERVER_ADDR で比較すればいいんでね？※
+ * ※　この関数は使わないようにする                                   ※
+ * ※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※
+ *
+ * curlモジュールが有効か確認
+ * 入ってなければ curl_module に 0
+ *
  * 自サーバーのIPを取得して例外IPに追加
  * パラメータは wp_options -> ownserverip に保存
  *
  * inet-ip.info がエラーのときは 0 を入れて再度実行
  * IPがきちんと入っているときは以降スルー
  *
+ * @return string error curlがない
  * @return bool true 成功
  * @return bool false 失敗
  */
 function toGetOwnIP() {
-	/* cURL が使えるかどうか確認 */
-	if ( extension_loaded( 'curl' ) === true ) {
-		add_action( 'admin_notices', 'block_wpscan_error' );
-		die();
-		
-	} else {
+	if ( extension_loaded( 'curl' ) === false ) {
+		update_option( 'curl_module', "0" );
+
+	} elseif ( extension_loaded( 'curl' ) === true && get_option( 'ownserverip' ) === false || get_option( 'ownserverip' ) === "0" ) {
 		$url  = "http://inet-ip.info/ip";
 		$curl = curl_init( $url );
 
@@ -415,16 +445,15 @@ function toGetOwnIP() {
 		/* Server ip */
 		$ownserverip = substr( $result, $header_size );
 
-		echo $ownserverip . "\r\n";
-		echo $response_code;
-
 		if ( $response_code == 200 ) {
 			update_option( 'ownserverip', trim( $ownserverip ) );
+			update_option( 'curl_extension', "1" );
 
 			return true;
 
 		} else {
-			update_option( 'ownserverip', 0 );
+			update_option( 'ownserverip', "0" );
+			update_option( 'curl_module', "1" );
 
 			return false;
 		}
@@ -461,12 +490,10 @@ function toSetLog( $judgement, $ip, $host, $ua, $request_url, $date, $whois ) {
  */
 function toSetReport( $ip, $date ) {
 	if ( file_exists( WP_CONTENT_DIR . '/block-wpscan' ) ) {
-		file_put_contents( WP_CONTENT_DIR . '/block-wpscan/report.list',
-			"${ip}|${date}\r\n", FILE_APPEND | LOCK_EX );
+		file_put_contents( WP_CONTENT_DIR . '/block-wpscan/report.list', "${ip}|${date}\r\n", FILE_APPEND | LOCK_EX );
 	} else {
 		mkdir( WP_CONTENT_DIR . '/block-wpscan' );
-		file_put_contents( WP_CONTENT_DIR . '/block-wpscan/report.list',
-			"${ip}|${date}\r\n", FILE_APPEND | LOCK_EX );
+		file_put_contents( WP_CONTENT_DIR . '/block-wpscan/report.list', "${ip}|${date}\r\n", FILE_APPEND | LOCK_EX );
 	}
 }
 
@@ -512,28 +539,30 @@ function toGetReportLog() {
 
 	if ( $a === false ) {
 		return false;
-	} else if ( is_array( $a ) === true ) {
-		if ( count( $a ) < 5 ) {
-			foreach ( toCreateArrayReport() as $row ) {
-				$array[] = "<tr>
+	} else {
+		if ( is_array( $a ) === true ) {
+			if ( count( $a ) < 5 ) {
+				foreach ( toCreateArrayReport() as $row ) {
+					$array[] = "<tr>
                   <td>${row['count']}</td>
                   <td>${row['ip']}</td>
                   <td>${row['date']}</td>
                   </tr>";
-			}
+				}
 
-		} else {
-			for ( $i = 0; $i < 5; $i ++ ) {
-				$array[] = "<tr>
+			} else {
+				for ( $i = 0; $i < 5; $i ++ ) {
+					$array[] = "<tr>
                   <td>{$a[$i]['count']}</td>
                   <td>{$a[$i]['ip']}</td>
                   <td>{$a[$i]['date']}</td>
                   </tr>";
+				}
 			}
-		}
 
-	} else {
-		echo "No data yet.";
+		} else {
+			echo "No data yet.";
+		}
 	}
 
 	return $array;
@@ -601,6 +630,18 @@ function toGetLog() {
 }
 
 /**
+ * 使ってないよ
+ * キャッシュ有効になってるときはどうしよっか
+ */
+function add_header() {
+	header( 'Expires: Thu, 01 Jan 1970 00:00:00 GMT' );
+	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT' );
+	header( 'Cache-Control: no-store, no-cache, must-revalidate' );
+	header( 'Cache-Control: post-check=0, pre-check=0', false );
+	header( 'Pragma: no-cache' );
+}
+
+/**
  * コア的な部分
  */
 function block_wpscan() {
@@ -608,24 +649,29 @@ function block_wpscan() {
 	 * 0 : reject
 	 * 1 : accept
 	 */
-	$ip           = trim( $_SERVER['REMOTE_ADDR'] );
-	$ua           = filter_var( trim( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_SPECIAL_CHARS );
-	$host         = trim( gethostbyaddr( $_SERVER['REMOTE_ADDR'] ) );
-	$exception_ip = get_option( 'ip' );
-	$exception_ua = get_option( 'ua' );
-	$result       = 1;
+
+	$ip = trim( $_SERVER['REMOTE_ADDR'] );
+	@$ua = htmlspecialchars( $_SERVER['HTTP_USER_AGENT'] );
+	@$host = trim( gethostbyaddr( $_SERVER['REMOTE_ADDR'] ) );
+	@$exception_ip = get_option( 'ip' );
+	@$exception_ua = get_option( 'ua' );
+	$result = 1;
 
 	/* IP + HOST - Tor */
 	if ( get_option( 'tor' ) == "ON" ) {
-		$file = file_get_contents( plugin_dir_url( __FILE__ ) . 'tornodelist' );
+		$file = file_get_contents( plugin_dir_path( __FILE__ ) . 'tornodelist' );
+
 		if ( strpos( $file, $ip ) !== false || strpos( $host, 'tor' ) !== false ) {
 			$tor_result = 0;
+
+		} else {
+			$tor_result = 1;
 		}
 	}
 
 	/* Exception IP */
 	$exception_result = $ip === $_SERVER['SERVER_ADDR'] ? 1 : 0;
-	if ( isset( $exception_ip ) == true || $exception_result === 0 ) {
+	if ( isset( $exception_ip ) == true && $exception_result === 0 ) {
 
 		### Exception JetPack Access ###
 		$jetpack_ip = "192.0.64.0/18";
@@ -638,18 +684,35 @@ function block_wpscan() {
 		$remote_long = ip2long( $ip ) >> ( 32 - $mask );
 
 		if ( $accept_long == $remote_long ) {
-			$exception_ip = 1;
+			$exception_result = 1;
 		} else {
-			$exception_ip = 0;
+			$exception_result = 0;
 		}
 		################################
 
-		if ( $exception_ip === 0 ) {
-			$exception_ip   = explode( ",", $exception_ip );
-			$exception_ip[] = "127.0.0.1"; // for reverse proxy
+		$ownserverip = get_option( 'ownserverip' );
+		if ( $exception_result === 0 ) {
+			if ( preg_match( "/,/", $exception_ip ) != 1 && $ownserverip === false ) {
+				$exception_ip   = array( $exception_ip );
+				$exception_ip[] = "127.0.0.1"; // for reverse proxy
 
+			} elseif ( preg_match( "/,/", $exception_ip ) != 1 && $ownserverip !== false ) {
+				$exception_ip   = array( $exception_ip, $ownserverip );
+				$exception_ip[] = "127.0.0.1"; // for reverse proxy
+
+			} elseif ( preg_match( "/,/", $exception_ip ) == 1 && $ownserverip === false ) {
+				$exception_ip   = explode( ",", $exception_ip );
+				$exception_ip[] = "127.0.0.1"; // for reverse proxy
+
+			} elseif ( preg_match( "/,/", $exception_ip ) == 1 && $ownserverip !== false ) {
+				$exception_ip   = explode( ",", $exception_ip );
+				$exception_ip[] = "127.0.0.1"; // for reverse proxy
+				$exception_ip[] = $ownserverip;
+			}
+
+			$exception_ip = array_merge( array_filter( $exception_ip ) );
 			foreach ( $exception_ip as $row ) {
-				if ( $row == $ip ) {
+				if ( trim( $row ) == $ip ) {
 					$exception_result = 1;
 					break;
 				}
@@ -658,15 +721,18 @@ function block_wpscan() {
 	}
 
 	/* Browser's languages */
-	if ( filter_input( INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE', FILTER_SANITIZE_SPECIAL_CHARS ) ) {
+	if ( filter_input( INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== false ) {
 		$languages = explode( ',', $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
 		$languages = array_reverse( $languages );
 
 		foreach ( $languages as $language ) {
-			if ( preg_match( '/^ja/i', $language ) || preg_match( '/^en/i', $language ) ) {
+			if ( preg_match( '/^ja/i', $language ) !== 0 || preg_match( '/^en/i', $language ) != 0 ) {
 				$browser_result = 1;
+			} else {
+				$browser_result = 0;
 			}
 		}
+
 	} else {
 		$browser_result = 0;
 	}
@@ -675,7 +741,9 @@ function block_wpscan() {
 	$e = array( "feed", "rss" );
 
 	foreach ( $e as $row ) {
-		if ( strpos( filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_SPECIAL_CHARS ), $row ) !== false ) {
+		if ( strpos( filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
+				$row ) !== false
+		) {
 			$request_result = 1;
 			break;
 
@@ -722,9 +790,8 @@ function block_wpscan() {
 		"Opera",
 		"Twitterbot/1.0"
 	);
-
-	foreach ( $array_ua as $row ) {
-		if ( $ua !== false ) {
+	if ( isset( $ua ) === true ) {
+		foreach ( $array_ua as $row ) {
 			if ( strpos( $ua, $row ) !== false ) {
 				$ua_result = 1;
 				break;
@@ -732,14 +799,21 @@ function block_wpscan() {
 			} else {
 				$ua_result = 0;
 			}
-		} else {
-			$ua_result = 0;
 		}
+	} else {
+		$ua_result = 0;
 	}
 
 	/* Exception UserAgent */
-	if ( $ua_result === 0 && $exception_result === 0 && isset( $exception_ua ) === true ) {
-		if ( $ua !== false ) {
+	if ( $ua_result === 0 && $exception_result === 0 && isset( $exception_ua ) === true && isset( $ua ) === true ) {
+		if ( preg_match( "/,/", $exception_ua ) != 1 ) {
+			if ( strpos( $ua, $exception_ua ) !== false ) {
+				$exception_result = 1;
+			} else {
+				$exception_result = 0;
+			}
+
+		} elseif ( preg_match( "/,/", $exception_ua ) === 1 ) {
 			$ua_array = explode( ",", $exception_ua );
 
 			foreach ( $ua_array as $row ) {
@@ -751,8 +825,6 @@ function block_wpscan() {
 					$exception_result = 0;
 				}
 			}
-		} else {
-			$exception_result = 0;
 		}
 	}
 
@@ -771,16 +843,21 @@ function block_wpscan() {
 	}
 
 	/*
-	echo "IP: $ip<br>HOST: $host<br>
-	--------------------<br>
-	Exception: $exception_result<br>
-	--------------------<br>
-	Browser: $browser_result<br>
-	Bot: $bot_result<br>
-	UA:$ua_result<br>
-	Proxy1: $proxy_result1<br>
-	Proxy2: $proxy_result2<br>
-	Tor: $tor_result<br>";
+		echo "IP: $ip<br>HOST: $host<br>
+		--------------------<br>
+		Exception: $exception_result<br>
+		Result: $result<br>
+		--------------------<br>
+		Browser: $browser_result<br>
+		Bot: $bot_result<br>
+		UA:$ua_result<br>
+		Proxy1: $proxy_result1<br>
+		Proxy2: $proxy_result2<br>
+		Tor: $tor_result<br>
+		<br><br>";
+		print_r( $_SERVER ) . "\r\n";
+		echo "<br><br>";
+		print_r( $exception_ip );
 	*/
 
 	if ( $result === 0 ) {
@@ -794,19 +871,13 @@ function block_wpscan() {
 			} elseif ( $tor_result === 0 ) {
 				$a = "Tor Access";
 			}
-			toSetLog( $a, $ip, $host,
-				filter_input( INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS ),
-				filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_SPECIAL_CHARS ), date( "Y-m-d H:i" ),
+
+			toSetLog( $a, $ip, $host, $ua, htmlspecialchars( $_SERVER['REQUEST_URI'] ), date( "Y-m-d H:i" ),
 				"http://whois.domaintools.com/${ip}" );
 		}
 
 		/* ブロック時の処理 */
 		if ( get_option( 'first' ) === "msg" ) {
-			header( 'HTTP / 1.1 406 Not Acceptable' );
-			header( 'Expires: Thu, 01 Jan 1970 00:00:00 GMT' );
-			header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT' );
-			header( 'Cache-Control: no-store, no-cache, must-revalidate' );
-
 			$msg = get_option( 'msg' );
 
 			$secure_img_path = plugin_dir_url( __FILE__ ) . 'assets/securimage';
@@ -825,27 +896,6 @@ function block_wpscan() {
             <br>
             <input type="button" onClick='history.back();' value="back">
 EOM;
-
-			/* 報告されたらここだよ */
-			if ( $_POST['captcha_code'] === true ) {
-				require_once plugin_dir_path( __FILE__ ) . 'assets/securimage/securimage.php';
-
-				$securimage = new Securimage();
-
-				if ( $securimage->check( $_POST['captcha_code'] ) === true ) {
-					toSetReport( $ip, date( "Y-m-d H:i" ) );
-					wp_die( "Thank you reported.", get_bloginfo( 'name' ) . " | " . "block-wpscan" );
-					exit;
-
-				} else {
-					wp_die( '<p>One more time</p> <input type="button" onClick=\'history.back();\' value="back">',
-						get_bloginfo( 'name' ) . " | " . "block-wpscan" );
-					exit;
-				}
-			}
-
-			/***************************************************************************************************/
-
 			wp_die( "<h1>Your access is rejected.</h1><br>" . $html, get_bloginfo( 'name' ) . " | " . "block-wpscan" );
 
 			/* リダイレクト */
