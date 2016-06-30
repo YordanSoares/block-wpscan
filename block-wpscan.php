@@ -727,14 +727,30 @@ function block_wpscan() {
 
 		foreach ( $languages as $language ) {
 			if ( preg_match( '/^ja/i', $language ) !== 0 || preg_match( '/^en/i', $language ) != 0 ) {
-				$browser_result = 1;
+				$bl_result = 1;
+
 			} else {
-				$browser_result = 0;
+				$bl_result = 0;
 			}
 		}
 
 	} else {
-		$browser_result = 0;
+		$bl_result = 0;
+	}
+
+	/* HTTP_ACCEPT_LANGUAGE */
+	if ( filter_input( INPUT_SERVER, 'HTTP_ACCEPT_ENCODING', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== false ) {
+		$hap = filter_input( INPUT_SERVER, 'HTTP_ACCEPT_ENCODING', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		if(strpos($hap, "gzip") !== false || strpos($hap, "deflate") !== false ){
+			$hap_result = 1;
+
+		} else {
+			$hap_result = 0;
+		}
+
+	} else {
+		$hap_result = 0;
 	}
 
 	/* Exception /feed & /rss access */
@@ -834,7 +850,7 @@ function block_wpscan() {
 		$proxy_result2 = isset( $_SERVER['HTTP_CLIENT_IP'] ) ? 0 : 1;
 	}
 
-	if ( $browser_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || @$tor_result === 0 ) {
+	if ( $bl_result === 0 || $hap_result === 0 || $ua_result === 0 || @$proxy_result1 === 0 || @$proxy_result2 === 0 || @$tor_result === 0 ) {
 		$result = 0;
 	}
 
@@ -848,7 +864,8 @@ function block_wpscan() {
 		Exception: $exception_result<br>
 		Result: $result<br>
 		--------------------<br>
-		Browser: $browser_result<br>
+		Browser: $bl_result<br>
+		AcceptEncoding : $hap_result<br>
 		Bot: $bot_result<br>
 		UA:$ua_result<br>
 		Proxy1: $proxy_result1<br>
@@ -862,7 +879,7 @@ function block_wpscan() {
 
 	if ( $result === 0 ) {
 		if ( get_option( 'log' ) == "ON" ) {
-			if ( $browser_result === 0 ) {
+			if ( $bl_result === 0 ) {
 				$a = "Not Browser Access";
 			} elseif ( $ua_result === 0 ) {
 				$a = "Corrupt UserAgent";
