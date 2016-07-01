@@ -3,8 +3,8 @@ Contributors: rluisr
 Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
-Tested up to: 4.5.2
-Stable tag: 0.6.0
+Tested up to: 4.5.3
+Stable tag: 0.6.6
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,14 @@ See more "Secreenshot".
 3. setting menu
 
 == Changelog ==
+
+= 0.6.6 =
+* Delete Search function.
+* Add Exception access.
+* Add Judgement method.
+* Fix Search function on Log.
+* Modify Code (disable press enter key on log function).
+* Update tornodelist.
 
 = 0.6.0 =
 * Add Japanese Translate.

@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.6.0
+Version: 0.6.6
 Author URI: https://luispc.com/
 */
 
@@ -65,12 +65,11 @@ function register_frontend( $hook_suffix ) {
 		wp_enqueue_script( 'bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
 			array(), null, false );
 		wp_enqueue_style( 'bootstrap_css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' );
-		wp_enqueue_script( 'bw.js', plugin_dir_path( __FILE__ ) . 'assets/js/style.js', array( 'jquery' ), null,
-			false );
-		wp_enqueue_script( 'quick.js', plugin_dir_path( __FILE__ ) . 'assets/js/jquery.searcher.js', array( 'jquery' ),
-			null, true );
-		wp_enqueue_script( 'search.js', plugin_dir_path( __FILE__ ) . 'assets/js/search.js', array( 'quick.js' ), null,
-			true );
+		wp_enqueue_script( 'bw.js', plugin_dir_url( __FILE__ ) . 'assets/js/style.js', array( 'jquery' ), null, false );
+		//wp_enqueue_script( 'quick.js', plugin_dir_url( __FILE__ ) . 'assets/js/jquery.searcher.js', array( 'jquery' ),null, true );
+		//wp_enqueue_script( 'search.js', plugin_dir_url( __FILE__ ) . 'assets/js/search.js', array( 'quick.js' ), null,true );
+		wp_enqueue_script( 'disable_enter.js', plugin_dir_url( __FILE__ ) . 'assets/js/disable_enter.js',
+			array( 'jquery' ), null, true );
 	}
 }
 
@@ -360,17 +359,31 @@ function menu_block_wpscan() {
 
 	<!-- START Log PAGE -->
 	<div class="tab-pane" id="tab2">
+		<h3>Blocked list</h3>
+
+		<span class="text-info"><strong>Blocked:</strong></span><?php echo @count( toGetLog() ); ?>
+		<span class="text-info">
+				<strong>filesize:</strong>
+			</span><?php echo @size_format( filesize( WP_CONTENT_DIR . '/block-wpscan/block.list' ), 1 ) ?>
+		<span class="text-info">
+				<strong>Path:</strong>
+			</span><?php echo WP_CONTENT_DIR . '/block-wpscan/block.list' ?>
+
+		<p style="font-weight:bolder">
+			<span style="color:#bd081c">※NBA</span> = Not Browser Access.
+			<span style="color:#00AFF0">※CUA</span> =Corrupt User Agent.
+			<span style="color:#3aaf85">※TA</span> = Tor Access.
+			<span style="color:#410093">※PA</span> = Proxy Access.
+		</p>
+
 		<form action="" method="post">
-			<h3>Blocked list<span style="padding:20px;"><input class="small" id="tablesearchinput"
-			                                                   placeholder="Search Here"></span><span><input
-						type="submit" class="btn btn-danger" name="delete" value="Delete"></span></h3>
-			<span class="text-info"><strong>Blocked:</strong></span><?php echo @count( toGetLog() ); ?>
-			<span
-				class="text-info"><strong>filesize:</strong></span><?php echo @size_format( filesize( WP_CONTENT_DIR . '/block-wpscan/block.list' ),
-				1 ) ?>
-			<span
-				class="text-info"><strong>Path:</strong></span><?php echo WP_CONTENT_DIR . '/block-wpscan/block.list' ?></span>
+			<input type="submit" class="btn btn-danger" name="delete" value="DeleteLog"/>
+			<a class="btn btn-success" target="_blank"
+			   href="https://wordpress.org/support/view/plugin-reviews/block-wpscan">Review :)</a>
+			<a class="btn btn-info" target="_blank" href="https://twitter.com/lu_iskun">Twitter</a>
+			<a class="btn btn-warning" target="_blank" href="https://github.com/rluisr/block-wpscan">GitHub</a>
 		</form>
+		<hr>
 		<table id="tabledata" class="table table-responsive">
 			<thead>
 			<tr>
@@ -401,11 +414,6 @@ function menu_block_wpscan() {
 <?php }
 
 /**
- * ※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※
- * ※　よく考えたら REMOTE_ADDR == SERVER_ADDR で比較すればいいんでね？※
- * ※　この関数は使わないようにする                                   ※
- * ※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※※
- *
  * curlモジュールが有効か確認
  * 入ってなければ curl_module に 0
  *
@@ -690,6 +698,46 @@ function block_wpscan() {
 		}
 		################################
 
+		### Exception Yahoo access ###
+		if ( $exception_result === 0 ) {
+			$yahoo_ip = "114.111.64.0/18";
+
+			$tmp_array = explode( "/", $yahoo_ip );
+			$accept_ip = $tmp_array[0];
+			$mask      = $tmp_array[1];
+
+			$accept_long = ip2long( $accept_ip ) >> ( 32 - $mask );
+			$remote_long = ip2long( $ip ) >> ( 32 - $mask );
+
+			if ( $accept_long == $remote_long ) {
+				$exception_result = 1;
+			}
+		}
+		##############################
+
+		### Exception Twitterbot ###
+		if ( $exception_result === 0 ) {
+			$twitter_ip = array(
+				"199.16.156.124",
+				"199.16.156.125",
+				"199.16.156.126",
+				"199.59.148.209",
+				"199.59.148.210",
+				"199.59.148.211"
+			);
+
+			foreach ( $twitter_ip as $row ) {
+				if ( $row == $ip ) {
+					$exception_result = 1;
+					break;
+				}
+			}
+
+		} else {
+			$exception_result = 0;
+		}
+		##############################
+
 		$ownserverip = get_option( 'ownserverip' );
 		if ( $exception_result === 0 ) {
 			if ( preg_match( "/,/", $exception_ip ) != 1 && $ownserverip === false ) {
@@ -742,7 +790,7 @@ function block_wpscan() {
 	if ( filter_input( INPUT_SERVER, 'HTTP_ACCEPT_ENCODING', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== false ) {
 		$hap = filter_input( INPUT_SERVER, 'HTTP_ACCEPT_ENCODING', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if(strpos($hap, "gzip") !== false || strpos($hap, "deflate") !== false ){
+		if ( strpos( $hap, "gzip" ) !== false || strpos( $hap, "deflate" ) !== false ) {
 			$hap_result = 1;
 
 		} else {
@@ -880,13 +928,13 @@ function block_wpscan() {
 	if ( $result === 0 ) {
 		if ( get_option( 'log' ) == "ON" ) {
 			if ( $bl_result === 0 ) {
-				$a = "Not Browser Access";
+				$a = "<span style=\"color:#bd081c\">NBA</span>";
 			} elseif ( $ua_result === 0 ) {
-				$a = "Corrupt UserAgent";
+				$a = "<span style=\"color:#00AFF0\">CUA</span>";
 			} elseif ( $proxy_result1 === 0 || $proxy_result2 === 0 ) {
-				$a = "Proxy Access";
+				$a = "<span style=\"color:#410093\">PA</span>";
 			} elseif ( $tor_result === 0 ) {
-				$a = "Tor Access";
+				$a = "<span style=\"color:#3aaf85\">TA</span>";
 			}
 
 			toSetLog( $a, $ip, $host, $ua, htmlspecialchars( $_SERVER['REQUEST_URI'] ), date( "Y-m-d H:i" ),
