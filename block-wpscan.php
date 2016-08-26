@@ -4,12 +4,8 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor.
 Author: rluisr
-Version: 0.6.6
+Version: 0.7.1
 Author URI: https://luispc.com/
-*/
-
-/*  Using jquery-searcher for search on Log function
-    License is MIT. https://github.com/lloiser/jquery-searcher/blob/master/LICENSE
 */
 
 /*  Calling inet-ip.info for get ownserver's global ip
@@ -681,28 +677,18 @@ function block_wpscan() {
 	$exception_result = $ip === $_SERVER['SERVER_ADDR'] ? 1 : 0;
 	if ( isset( $exception_ip ) == true && $exception_result === 0 ) {
 
-		### Exception JetPack Access ###
-		$jetpack_ip = "192.0.64.0/18";
+		$exception_ip_list = array(
+			"192.0.64.0/18", // JetPack
+			"114.111.64.0/18", // Yahoo
+			"66.220.144.0/20", // Facebook
+			"173.252.64.0/18", // Facebook
+			"199.16.156.0/22", // Twitter
+			"199.59.148.0/22", // Twitter
+			"66.249.64.0/19" // Google
+		);
 
-		$tmp_array = explode( "/", $jetpack_ip );
-		$accept_ip = $tmp_array[0];
-		$mask      = $tmp_array[1];
-
-		$accept_long = ip2long( $accept_ip ) >> ( 32 - $mask );
-		$remote_long = ip2long( $ip ) >> ( 32 - $mask );
-
-		if ( $accept_long == $remote_long ) {
-			$exception_result = 1;
-		} else {
-			$exception_result = 0;
-		}
-		################################
-
-		### Exception Yahoo access ###
-		if ( $exception_result === 0 ) {
-			$yahoo_ip = "114.111.64.0/18";
-
-			$tmp_array = explode( "/", $yahoo_ip );
+		foreach ( $exception_ip_list as $row ) {
+			$tmp_array = explode( "/", $row );
 			$accept_ip = $tmp_array[0];
 			$mask      = $tmp_array[1];
 
@@ -711,32 +697,9 @@ function block_wpscan() {
 
 			if ( $accept_long == $remote_long ) {
 				$exception_result = 1;
+				break;
 			}
 		}
-		##############################
-
-		### Exception Twitterbot ###
-		if ( $exception_result === 0 ) {
-			$twitter_ip = array(
-				"199.16.156.124",
-				"199.16.156.125",
-				"199.16.156.126",
-				"199.59.148.209",
-				"199.59.148.210",
-				"199.59.148.211"
-			);
-
-			foreach ( $twitter_ip as $row ) {
-				if ( $row == $ip ) {
-					$exception_result = 1;
-					break;
-				}
-			}
-
-		} else {
-			$exception_result = 0;
-		}
-		##############################
 
 		$ownserverip = get_option( 'ownserverip' );
 		if ( $exception_result === 0 ) {
