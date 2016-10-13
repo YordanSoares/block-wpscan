@@ -1,44 +1,30 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: block-wpscan v0.5.5\n"
-"POT-Creation-Date: 2016-06-20 21:25+0900\n"
-"PO-Revision-Date: 2016-06-20 21:26+0900\n"
+"Project-Id-Version: block-wpscan\n"
+"POT-Creation-Date: 2016-10-13 20:50+0900\n"
+"PO-Revision-Date: 2016-10-13 20:50+0900\n"
 "Last-Translator: rluisr <detteiu.x14th@gmail.com>\n"
 "Language-Team: rluisr <detteiu.x14th@gmail.com>\n"
-"Language: Japanese\n"
+"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.8.9\n"
 "X-Poedit-KeywordsList: _;gettext;gettext_noop;_e\n"
-"X-Poedit-Basepath: .\n"
+"X-Poedit-Basepath: ../..\n"
 "Plural-Forms: nplurals = 1; plural = 0;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-SearchPath-0: ..\n"
+"X-Poedit-SearchPath-0: block-wpscan.php\n"
 
-#: ../block-wpscan.php:36
-msgid "Thank you reported."
-msgstr ""
-"報告ありがとうございます。この報告は管理者へ通知され、例外として追加されれば"
-"あなたはアクセスすることができるようになります。"
-
-#: ../block-wpscan.php:40
+#: block-wpscan.php:57
 msgid ""
 "<p>One more time</p> <input type=\"button\" onClick='history.back();' value="
 "\"back\">"
 msgstr ""
-"<p>もう一度お願いします。</p> <input type=\"button\" onClick='history.back"
-"();' value=\"back\">"
+"<p>もう一度お願いします。</p> <input type=\"button\" onClick='history."
+"back();' value=\"back\">"
 
-#: ../block-wpscan.php:105
-msgid ""
-"<p>Thank you for installing block-wpscan. You have to setup for block-wpscan."
-"</p>"
-msgstr ""
-"<p>block-wpscanをインストールしていただきありがとうございます。最初に左のメ"
-"ニューより設定を行ってください。</p>"
-
-#: ../block-wpscan.php:123
+#: block-wpscan.php:124
 msgid ""
 "<p>This server didn't load `curl` module. Please check your `php.ini` or "
 "install `php-common`.<br>\n"
@@ -56,73 +42,72 @@ msgstr ""
 "バーのグローバルIPアドレスを設定してください。</p>\n"
 "\t\t\t\t</div>"
 
-#: ../block-wpscan.php:195
+#: block-wpscan.php:183
 msgid "1. Set your Timezone."
 msgstr "1. タイムゾーンの設定"
 
-#: ../block-wpscan.php:213
+#: block-wpscan.php:201
 msgid "2. What do you want to do, when the access is blocked."
 msgstr "2. ブロックしたときの動作"
 
-#: ../block-wpscan.php:217
+#: block-wpscan.php:205
 msgid "<input type=\"radio\" name=\"first\" value=\"msg\" checked>Message"
 msgstr "<input type=\"radio\" name=\"first\" value=\"msg\" checked>メッセージ"
 
-#: ../block-wpscan.php:222
+#: block-wpscan.php:210
 msgid "<input type=\"radio\" name=\"first\" value=\"msg\">Message"
 msgstr "<input type=\"radio\" name=\"first\" value=\"msg\">メッセージ"
 
-#: ../block-wpscan.php:228
+#: block-wpscan.php:216
 msgid ""
 "<input type=\"radio\" name=\"first\" value=\"redirect\" checked>Redirect"
 msgstr ""
 "<input type=\"radio\" name=\"first\" value=\"redirect\" checked>リダイレクト"
 
-#: ../block-wpscan.php:233
+#: block-wpscan.php:221
 msgid "<input type=\"radio\" name=\"first\" value=\"redirect\">Redirect"
 msgstr "<input type=\"radio\" name=\"first\" value=\"redirect\">リダイレクト"
 
-#: ../block-wpscan.php:257
+#: block-wpscan.php:245
 msgid "If you are using CDN service, you must not check ON."
 msgstr "もしCDNを使用している環境であれば絶対にこの設定をOFFにしてください。"
 
-#: ../block-wpscan.php:271
+#: block-wpscan.php:259
 msgid "If you check ON, It takes a bit of a while load time. Please test."
 msgstr ""
 "これをONにするとパフォーマンスに影響を出すかもしれません。テストを行うことを"
 "推奨します。"
 
-#: ../block-wpscan.php:284
+#: block-wpscan.php:272
 msgid "5. Exception IP"
 msgstr "例外IPの設定"
 
-#: ../block-wpscan.php:285
+#: block-wpscan.php:273
 msgid "If you have many exception IPs, Please split with ','"
 msgstr "もし複数例外IPアドレスを設定したい場合 ',' で区切ってください"
 
-#: ../block-wpscan.php:296
+#: block-wpscan.php:284
 msgid "6. Exception UserAgent"
 msgstr "例外ユーザーエージェントの設定"
 
-#: ../block-wpscan.php:297
+#: block-wpscan.php:285
 msgid "If you have many exception IPs,Please sprit with ','"
 msgstr "もし複数例外IPアドレスを設定したい場合 ',' で区切ってください"
 
-#: ../block-wpscan.php:307
+#: block-wpscan.php:295
 msgid "7. Log function"
 msgstr "ログ機能"
 
-#: ../block-wpscan.php:330
-msgid "Reported Access (It shows only latest 5)"
-msgstr "報告されたアクセス（最新５件）"
+#: block-wpscan.php:318
+msgid "List of through captcha access (Latest 5)"
+msgstr "CAPTCHAで認証されたアクセス"
 
-#: ../block-wpscan.php:357
-msgid "Reported access is user reported as not unauthorized access."
+#: block-wpscan.php:345
+msgid "List of through captcha access is maybe spam."
 msgstr ""
-"報告されたアクセスは、正規のユーザーであると申告されたアクセスを表示していま"
-"す。"
+"CAPTCHAで認証されたアクセスはもしかしたらスパムや、ボットの可能性があります。"
 
-#: ../block-wpscan.php:366
+#: block-wpscan.php:354
 msgid ""
 "This plugin block Tor, Proxy, Command Line access and wpscan. But it can't "
 "block all\n"
@@ -132,7 +117,7 @@ msgstr ""
 "をブロックします。\n"
 "\t\t\t\t\t"
 
-#: ../block-wpscan.php:368
+#: block-wpscan.php:356
 msgid ""
 "Tor access is blocked by Tornodelist. If Tor access is isn't registration of "
 "Tornodelist, It\n"
@@ -141,40 +126,60 @@ msgstr ""
 "Torからのアクセスは tornodelist によってブロックされます。もしこのリストに登"
 "録されていなかったらブロックすることはできません。"
 
-#: ../block-wpscan.php:370
+#: block-wpscan.php:358
 msgid "About 80percent can block."
 msgstr "大体80パーセントのアクセスをブロックできます。"
 
-#: ../block-wpscan.php:372
+#: block-wpscan.php:360
 msgid "Exception IPs."
 msgstr "例外IPの設定"
 
-#: ../block-wpscan.php:373
+#: block-wpscan.php:361
 msgid "Exception UserAgent."
 msgstr "例外ユーザーエージェントの設定"
 
-#: ../block-wpscan.php:374
+#: block-wpscan.php:362
 msgid "Proxy, Tor block ON / OFF."
 msgstr "Proxy, TorのON/OFF機能"
 
-#: ../block-wpscan.php:375
+#: block-wpscan.php:363
 msgid "Edit message."
 msgstr "メッセージの編集"
 
-#: ../block-wpscan.php:376
+#: block-wpscan.php:364
 msgid "Log function."
 msgstr "ログ機能"
 
-#: ../block-wpscan.php:378
+#: block-wpscan.php:366
 msgid "Googlebot and more can access own server."
 msgstr ""
 "もちろんGooglebotなどの有名なクローラーからのアクセスはブロックしません。"
 
-#: ../block-wpscan.php:380
+#: block-wpscan.php:368
 msgid ""
 "If you have any problems or requests, Please contact me with github or "
 "twitter."
 msgstr "もし何か要望や問題があれば Twitter, GitHub からお知らせください。"
+
+#~ msgid "Thank you reported."
+#~ msgstr ""
+#~ "報告ありがとうございます。この報告は管理者へ通知され、例外として追加されれ"
+#~ "ばあなたはアクセスすることができるようになります。"
+
+#~ msgid ""
+#~ "<p>Thank you for installing block-wpscan. You have to setup for block-"
+#~ "wpscan.</p>"
+#~ msgstr ""
+#~ "<p>block-wpscanをインストールしていただきありがとうございます。最初に左の"
+#~ "メニューより設定を行ってください。</p>"
+
+#~ msgid "Reported Access (It shows only latest 5)"
+#~ msgstr "報告されたアクセス（最新５件）"
+
+#~ msgid "Reported access is user reported as not unauthorized access."
+#~ msgstr ""
+#~ "報告されたアクセスは、正規のユーザーであると申告されたアクセスを表示してい"
+#~ "ます。"
 
 #~ msgid "If you check on, It takes a bit of a while load time. Please test."
 #~ msgstr ""

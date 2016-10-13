@@ -3,8 +3,8 @@ Contributors: rluisr
 Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
-Tested up to: 4.6
-Stable tag: 0.7.1
+Tested up to: 4.6.1
+Stable tag: 0.7.3
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,10 @@ See more "Secreenshot".
 3. setting menu
 
 == Changelog ==
+
+= 0.7.3 =
+* !Important! [Message] - Access is permanently allowed when this plugin blocked access and get through CAPTCHA[validation].
+* Update tornodelist.
 
 = 0.7.1 =
 * Update Add exception access from new googlebot ip address.
