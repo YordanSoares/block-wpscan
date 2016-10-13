@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
 Tested up to: 4.6
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,9 @@ See more "Secreenshot".
 3. setting menu
 
 == Changelog ==
+
+= 0.7.2 =
+* Improved security
 
 = 0.7.1 =
 * Update Add exception access from new googlebot ip address.
