@@ -4,7 +4,7 @@ Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
 Tested up to: 4.7
-Stable tag: 0.7.5
+Stable tag: 0.7.6
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,6 +45,9 @@ See more "Secreenshot".
 3. setting menu
 
 == Changelog ==
+
+= 0.7.6 =
+* Bugfix Layout is broken on Japanese.
 
 = 0.7.5 =
 * Check cache setting and if its enable, block-wpscan is disable automatically.

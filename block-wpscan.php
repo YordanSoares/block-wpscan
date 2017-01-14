@@ -4,7 +4,7 @@ Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
 Description: This plugin block wpscan, Proxy and Tor. * If you using cache plugin or cache system, this plugin doesn't run properly. *
 Author: rluisr
-Version: 0.7.5
+Version: 0.7.6
 Author URI: https://luispc.com/
 */
 
