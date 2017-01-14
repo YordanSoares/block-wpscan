@@ -2,9 +2,9 @@
 /*
 Plugin Name: block-wpscan
 Plugin URI: https://luispc.com/
-Description: This plugin block wpscan, Proxy and Tor.
+Description: This plugin block wpscan, Proxy and Tor. * If you using cache plugin or cache system, this plugin doesn't run properly. *
 Author: rluisr
-Version: 0.7.3
+Version: 0.7.5
 Author URI: https://luispc.com/
 */
 
@@ -61,16 +61,76 @@ if (isset($_POST['captcha_code']) === true) {
 }
 /***************************************************************************************************/
 
-add_action('init', 'block_wpscan');
+add_action('init', 'init_block_wpscan');
 add_action('admin_menu', 'toGetOwnIP');
 add_action('admin_notices', 'admin_first_setting');
 add_action('admin_notices', 'admin_curl_error');
 add_action('admin_menu', 'admin_block_wpscan');
 add_action('admin_enqueue_scripts', 'register_frontend');
+add_action('admin_init', 'check_cache');
 
 /**
- * スクリプト、スタイルシートの読み込み
- * Wordpress標準の jquery を使わずにCDNから読み込む
+ * Check wp-content/block-wpscan/cache_status.
+ * 0 : Run block-wpscan
+ * 1 : Through block-wpscan / Do nothing
+ */
+function init_block_wpscan()
+{
+    $status = file_get_contents(WP_CONTENT_DIR . '/block-wpscan/cache_status');
+
+    if ($status == 0) {
+        block_wpscan();
+
+    } elseif ($status == 1) {
+
+    }
+}
+
+/**
+ * Check cache setting.
+ * If cache is enable, block-wpscan will be disabled. -> init
+ *
+ * Save cache_status file wp-content/block-wpscan/cache_status
+ * 0 : cache is disable
+ * 1 : cache is enable
+ */
+function check_cache()
+{
+    $path = preg_replace("/wp-content/", " ", WP_CONTENT_DIR);
+    $path = trim($path);
+    $wp_config = file_get_contents("${path}wp-config.php");
+
+    if (file_exists(WP_CONTENT_DIR . '/block-wpscan') === false) {
+        mkdir(WP_CONTENT_DIR . '/block-wpscan');
+    }
+
+    if (preg_match("/^define\('WP_CACHE',\s*true\);/mi", $wp_config) === 1) {
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/cache_status', "1", LOCK_EX);
+        add_action('admin_notices', 'admin_cache_enable');
+
+    } else {
+        file_put_contents(WP_CONTENT_DIR . '/block-wpscan/cache_status', "0", LOCK_EX);
+        remove_action('admin_notices', 'admin_cache_enable');
+    }
+}
+
+/**
+ * If cache is enable, Show message on admin page.
+ */
+function admin_cache_enable()
+{
+    echo "<div class=\"notice notice-error\">";
+    echo "<h4>block-wpscan</h4>";
+    echo _e("<p>This wordpress enables cache setting.<br>
+            block-wpscan doesn't support under enabling cache.<br>
+			block-wpscan is disabled automatically.
+			If you disable cache plugin, block-wpscan is enable automatically.</p>
+			</div><br>", 'block-wpscan');
+}
+
+/**
+ * Call script and stylesheets.
+ * Don't use basically jquery on wordpress.
  */
 function register_frontend($hook_suffix)
 {
@@ -87,7 +147,7 @@ function register_frontend($hook_suffix)
 }
 
 /**
- * setting for Admin
+ * Setting for Admin
  */
 function admin_block_wpscan()
 {
@@ -96,7 +156,7 @@ function admin_block_wpscan()
 }
 
 /**
- * notices first setting
+ * Notices first setting
  */
 function admin_first_setting()
 {
@@ -114,7 +174,7 @@ function admin_first_setting()
 }
 
 /**
- * notices curl module error
+ * Notices curl module error
  */
 function admin_curl_error()
 {
@@ -900,22 +960,22 @@ function block_wpscan()
     }
 
     /*
-        echo "IP: $ip<br>HOST: $host<br>
-        --------------------<br>
-        Exception: $exception_result<br>
-        Result: $result<br>
-        --------------------<br>
-        Browser: $bl_result<br>
-        AcceptEncoding : $hap_result<br>
-        Bot: $bot_result<br>
-        UA:$ua_result<br>
-        Proxy1: $proxy_result1<br>
-        Proxy2: $proxy_result2<br>
-        Tor: $tor_result<br>
-        <br><br>";
-        print_r($_SERVER) . "\r\n";
-        echo "<br><br>";
-        print_r($exception_ip);
+            echo "IP: $ip<br>HOST: $host<br>
+            --------------------<br>
+            Exception: $exception_result<br>
+            Result: $result<br>
+            --------------------<br>
+            Browser: $bl_result<br>
+            AcceptEncoding : $hap_result<br>
+            Bot: $bot_result<br>
+            UA:$ua_result<br>
+            Proxy1: $proxy_result1<br>
+            Proxy2: $proxy_result2<br>
+            Tor: $tor_result<br>
+            <br><br>";
+            print_r($_SERVER) . "\r\n";
+            echo "<br><br>";
+            print_r($exception_ip);
     */
 
     if ($result === 0) {

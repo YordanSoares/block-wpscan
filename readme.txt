@@ -3,13 +3,15 @@ Contributors: rluisr
 Donate link: https://luispc.com/
 Tags: wpscan, proxy, tor, block, user, enumerate
 Requires at least: 4.0.0
-Tested up to: 4.6.1
-Stable tag: 0.7.3
+Tested up to: 4.7
+Stable tag: 0.7.5
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This plugin can block "Tor access", "Proxy Access", "Commandline Access" and more.
 When it blocks unauthorized access.
+
+* If you using cache plugin or cache system, this plugin doesn't run properly. *
 
 == Description ==
 
@@ -17,6 +19,8 @@ This plugin can block "Tor access", "Proxy Access", "Commandline Access" and mor
 When it blocks unauthorized access, you can choose setting "Show message" or "Redirect".
 
 Googlebot,Twitterbot and other crawler can access own wordpress.
+
+* If you using cache plugin or cache system, this plugin doesn't run properly. *
 
 = list of exception. =
 "google","msn","yahoo","bing","hatena",
@@ -41,6 +45,14 @@ See more "Secreenshot".
 3. setting menu
 
 == Changelog ==
+
+= 0.7.5 =
+* Check cache setting and if its enable, block-wpscan is disable automatically.
+* Modify code.
+
+= 0.7.4 =
+* Support Wordpress 4.7
+* Update tornodelist
 
 = 0.7.3 =
 * !Important! [Message] - Access is permanently allowed when this plugin blocked access and get through CAPTCHA[validation].
